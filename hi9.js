@@ -1,17 +1,15 @@
 chrome.idle.onStateChanged.addListener(function(v) {
 
-  console.log("it works! your idle",v);
+  console.log("it works! your ",v);
 
 });
 chrome.tabs.onActivated.addListener(function(v) {
 
-  // Get the current active tab in the lastly focused window
-  chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true
-  }, function(tabs) {
-    // and use that tab to fill in out title and url
-    var tab = tabs[0];
-    console.log(tabs);
-  });
+    console.log("Your url is", v);
+
+})
+chrome.tabs.onUpdated.addListener(function(id,o,t) {
+
+    console.log("Your o.url", o.url);
+
 })
