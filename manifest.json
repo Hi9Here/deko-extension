@@ -4,5 +4,6 @@
     "version": "1.0",
     "incognito": "split",
     "chrome_url_overrides": { "newtab": "redirect.html" },
-    "manifest_version": 2
+    "manifest_version": 2,
+    "permissions": ["idle"]
 }
