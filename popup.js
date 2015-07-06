@@ -29,7 +29,7 @@ function getCurrentTabUrl(callback) {
     // from |queryInfo|), then the "tabs" permission is required to see their
     // "url" properties.
     console.assert(typeof url == 'string', 'tab.url should be a string');
-
+    console.log(tabs);
     alert(url);
   });
 }
@@ -43,8 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Put the image URL in Google search.
     renderStatus('hi o' + url);
 
-    }, function(errorMessage) {
+  }, function(errorMessage) {
       renderStatus(errorMessage);
-    });
   });
 });
