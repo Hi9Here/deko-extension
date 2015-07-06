@@ -5,7 +5,7 @@
     "incognito": "split",
     "chrome_url_overrides": { "newtab": "redirect.html" },
     "manifest_version": 2,
-    "permissions": ["idle","activeTab","https://hi9.uk/"],  
+    "permissions": ["idle","activeTab","https://hi9.uk/","bookmarks"],  
     "browser_action": {
         "default_icon": "icon.png",
         "default_popup": "popup.html"
