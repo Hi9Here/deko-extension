@@ -15,9 +15,9 @@ chrome.idle.onStateChanged.addListener(function(v) {
   });
   chrome.storage.local.get(['idle'], function(result) {
     var idle_loaded = result.idle;
-    console.debug('idle :', idle_loaded);
+    console.debug('idle loaded:', idle_loaded);
   });
-  
+  console.debug('idle :', idle);
 });
 chrome.tabs.onActivated.addListener(function(v) {
 
