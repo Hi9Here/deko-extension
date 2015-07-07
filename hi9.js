@@ -3,11 +3,33 @@ var urlsToList = ["https://github.com/","chrome-devtools://devtools"];
 chrome.idle.onStateChanged.addListener(function(v) {
 
   console.log("it works! your ",v);
+  chrome.storage.local.set({
+        'channels': [1, 2, 3],
+        'keywords': ['a', 'b', 'c']
+});
+ 
+chrome.storage.local.get(['channels', 'keywords'], function(result) {
+        var channels = result.channels;
+        var keywords = result.keywords;
+        console.debug('channels :', channels);
+        console.debug('keywords :', keywords);
+});
 
 });
 chrome.tabs.onActivated.addListener(function(v) {
 
     console.log("Activated tab", v);
+    chrome.storage.local.set({
+        'channels': [1, 2, 3],
+        'keywords': ['a', 'b', 'c']
+});
+ 
+chrome.storage.local.get(['channels', 'keywords'], function(result) {
+        var channels = result.channels;
+        var keywords = result.keywords;
+        console.debug('channels :', channels);
+        console.debug('keywords :', keywords);
+});
 
 })
 chrome.tabs.onUpdated.addListener(function(id,o,t) {
@@ -20,5 +42,16 @@ chrome.tabs.onUpdated.addListener(function(id,o,t) {
       }
     }
   });
+  chrome.storage.local.set({
+        'channels': [1, 2, 3],
+        'keywords': ['a', 'b', 'c']
+  });
+ 
+chrome.storage.local.get(['channels', 'keywords'], function(result) {
+        var channels = result.channels;
+        var keywords = result.keywords;
+        console.debug('channels :', channels);
+        console.debug('keywords :', keywords);
+});
 
 })
