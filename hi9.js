@@ -1,5 +1,5 @@
 var tabList = {};
-var urlsToList = ["https://github.com/","chrome-devtools://devtools"];
+var urlsToList = ["https://hi9.uk/","https://github.com/","chrome-devtools://devtools"];
 var idle = [];
 
 chrome.idle.onStateChanged.addListener(function(v) {
