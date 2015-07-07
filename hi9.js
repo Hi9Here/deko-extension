@@ -1,9 +1,11 @@
 var tabList = {};
 var urlsToList = ["https://github.com/","chrome-devtools://devtools"];
 var idle = [];
+
 chrome.idle.onStateChanged.addListener(function(v) {
 
   console.log("it works! your ",v);
+  console.log("idle ", idle);
   idle.push([new time() ,v])
   chrome.storage.local.set({
     'idle': idle
@@ -12,7 +14,7 @@ chrome.idle.onStateChanged.addListener(function(v) {
     var idle_loaded = result.idle;
     console.debug('idle :', idle_loaded);
   });
-
+  
 });
 chrome.tabs.onActivated.addListener(function(v) {
 
