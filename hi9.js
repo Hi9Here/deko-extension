@@ -9,8 +9,8 @@ chrome.idle.onStateChanged.addListener(function(v) {
     'idle': idle
   });
   chrome.storage.local.get(['idle'], function(result) {
-    var idle = result.idle;
-    console.debug('idle :', idle);
+    var idle_loaded = result.idle;
+    console.debug('idle :', idle_loaded);
   });
 
 });
