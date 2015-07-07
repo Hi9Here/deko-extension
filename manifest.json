@@ -11,6 +11,6 @@
         "default_popup": "popup.html"
     },
     "background": {
-        "page": ["hi9.html"]
+        "page":"hi9.html"
     }
 }
