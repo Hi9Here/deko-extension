@@ -6,7 +6,10 @@ chrome.idle.onStateChanged.addListener(function(v) {
 
   console.log("it works! your ",v);
   console.log("idle ", idle);
-  idle.push([new time() ,v])
+  var d = new Date();
+  var n = d.getTime();
+  
+  idle.push([n ,v])
   chrome.storage.local.set({
     'idle': idle
   });
