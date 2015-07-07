@@ -1,19 +1,17 @@
 var tabList = {};
 var urlsToList = ["https://github.com/","chrome-devtools://devtools"];
+var idle = [];
 chrome.idle.onStateChanged.addListener(function(v) {
 
   console.log("it works! your ",v);
+  idle.push([new time() ,v])
   chrome.storage.local.set({
-        'channels': [1, 2, 3],
-        'keywords': ['a', 'b', 'c']
-});
- 
-chrome.storage.local.get(['channels', 'keywords'], function(result) {
-        var channels = result.channels;
-        var keywords = result.keywords;
-        console.debug('channels :', channels);
-        console.debug('keywords :', keywords);
-});
+    'idle': idle
+  });
+  chrome.storage.local.get(['idle'], function(result) {
+    var idle = result.idle;
+    console.debug('idle :', idle);
+  });
 
 });
 chrome.tabs.onActivated.addListener(function(v) {
