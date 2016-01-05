@@ -12,12 +12,16 @@ function authHandler (error, authData) {
     console.log('Authenticated successfully with payload:', authData)
   }
 }
+
 if (authData) {
+
   console.log('User ' + authData.uid + ' is logged in with ' + authData.provider)
   var data = {}
   data[authData.uid] = authData.google.email
   myFirebaseRef.set(data)
+
 } else {
+
   console.log('User is logged out')
 
   myFirebaseRef.authWithOAuthPopup('google', authHandler, {
@@ -32,61 +36,41 @@ chrome.idle.onStateChanged.addListener(function (v) {
   var d = new Date()
   var n = d.getTime()
 
-  idle.push([n, v])
-  chrome.storage.local.set({
-    'idle': idle
-  })
-  chrome.storage.local.get(['idle'], function (result) {
-    var idle_loaded = result.idle
-    console.debug('idle loaded:', idle_loaded)
-  })
+  db.post({idle: [n, v]})
   console.debug('idle :', idle)
 })
 chrome.tabs.onActivated.addListener(function (v) {
-  console.log('Activated tab', v)
-  chrome.storage.local.set({
-    'channels': [1, 2, 3],
-    'keywords': ['a', 'b', 'c']
-  })
+  var d = new Date()
+  var n = d.getTime()
 
-  chrome.storage.local.get(['channels', 'keywords'], function (result) {
-    var channels = result.channels
-    var keywords = result.keywords
-    console.debug('channels :', channels)
-    console.debug('keywords :', keywords)
-  })
+  db.post({onActivated: [n, v]})
+  console.log('Activated tab', v)
 })
 chrome.tabs.onUpdated.addListener(function (id, o, t) {
   chrome.tabs.getSelected(null, function (tab) {
-    console.log('Your url is', tab.url)
     for (var i = 0; i < urlsToList.length; ++i) {
       if (tab.url.substring(0, urlsToList[i].length) === urlsToList[i]) {
-        console.log('logging this one', urlsToList[i], userInfo)
+        console.log('logging this one', urlsToList[i])
+        
       }
     }
-  })
-
-  chrome.storage.local.set({
-    'channels': [1, 2, 3],
-    'keywords': ['a', 'b', 'c']
-  })
-
-  chrome.storage.local.get(['channels', 'keywords'], function (result) {
-    var channels = result.channels
-    var keywords = result.keywords
-    console.debug('channels :', channels)
-    console.debug('keywords :', keywords)
   })
 })
 
 chrome.identity.getProfileUserInfo(function (user) {
   userInfo = user
+  db.get(userInfo.id).then(function(doc) {
+    return db.put({
+      _id: userInfo.id,
+      _rev: doc._rev,
+      user: userInfo
+    });
+  }).then(function(response) {
+    console.log("response",response)
+    // handle response
+  }).catch(function (err) {
+    console.log("err",err)
+  })
 })
 
-db.put({
-  user: userInfo, _id: 'user'
-}).then(function (response) {
-  // handle response
-}).catch(function (err) {
-  console.log(err)
-})
+
