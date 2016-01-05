@@ -39,6 +39,23 @@ chrome.idle.onStateChanged.addListener(function (v) {
   db.post({idle: [n, v]})
   console.debug('idle :', idle)
 })
+
+chrome.tabs.onDetached.addListener(function (v) {
+  var d = new Date()
+  var n = d.getTime()
+
+  db.post({onDetached: [n, v]})
+  console.log('onDetached tab', v)
+})
+
+chrome.tabs.onHighlighted.addListener(function (v) {
+  var d = new Date()
+  var n = d.getTime()
+
+  db.post({onHighlighted: [n, v]})
+  console.log('onHighlighted tab', v)
+})
+
 chrome.tabs.onActivated.addListener(function (v) {
   var d = new Date()
   var n = d.getTime()
@@ -46,6 +63,7 @@ chrome.tabs.onActivated.addListener(function (v) {
   db.post({onActivated: [n, v]})
   console.log('Activated tab', v)
 })
+
 chrome.tabs.onUpdated.addListener(function (id, o, t) {
   chrome.tabs.getSelected(null, function (tab) {
     for (var i = 0; i < urlsToList.length; ++i) {
