@@ -1,6 +1,28 @@
 var tabList = {};
 var urlsToList = ["https://hi9.uk/","https://github.com/","chrome-devtools://devtools"];
 var idle = [];
+      var myFirebaseRef = new Firebase("https://hi9site.firebaseio.com/testing");
+      var authData = myFirebaseRef.getAuth();
+      function authHandler(error, authData) {
+        if (error) {
+          console.log("Login Failed!", error);
+        } else {
+          console.log("Authenticated successfully with payload:", authData);
+        }
+      }
+      if (authData) {
+        console.log("User " + authData.uid + " is logged in with " +  authData.provider);
+        var data = {}
+        data[authData.uid] = authData.google.email;
+        myFirebaseRef.set(data);
+      } else {
+        console.log("User is logged out");
+       
+        myFirebaseRef.authWithOAuthPopup("google", authHandler, {
+          remember: "sessionOnly",
+          scope: "email"
+        });
+      }
 
 chrome.idle.onStateChanged.addListener(function(v) {
 
