@@ -65,6 +65,9 @@ chrome.idle.onStateChanged.addListener(function (v) {
       }
     }
     function getTotalTime(changed) {
+      changed.sort(function(a, b) {
+        return a[0] - b[0];
+      })
       // from active to idle
       for (var index = 0; index+1 < changed.length; index = index + 1) {
         if (changed[index][1] === "active" && changed[index+1][1] === "idle") {
