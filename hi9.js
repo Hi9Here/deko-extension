@@ -31,13 +31,41 @@ if (authData) {
 }
 
 chrome.idle.onStateChanged.addListener(function (v) {
-  console.log('it works! your ', v)
-  console.log('idle ', idle)
+  var d = new Date()
+  var n = d.getTime()
+
+  db.post({onStateChanged: [n, v]})
+  console.log('idle ', v)
   var d = new Date()
   var n = d.getTime()
 
   db.post({idle: [n, v]})
-  console.debug('idle :', idle)
+
+  if (v === "idle") {
+    function logThis(element, index, array) {
+      var loggingThis = {}
+      var onStateChanged = [] 
+      if (element.doc.hasOwnProperty("idle")) {
+        onStateChanged.push(element.doc.idle)
+      }
+      console.log(element.doc)
+    
+    }
+    console.log('idle ', v)
+    db.allDocs({
+      include_docs: true
+    }).then(function(doc) {
+      doc.rows.forEach(logThis)
+      console.log(doc)
+    })
+  }
+  // compial data 
+    // get data
+    // time on facebook/github/hi9/other
+    //  
+  // try to save data to hi9site
+    // firebaseio post 
+  // if good del local data
 })
 
 chrome.tabs.onDetached.addListener(function (v) {
@@ -69,7 +97,7 @@ chrome.tabs.onUpdated.addListener(function (id, o, t) {
     for (var i = 0; i < urlsToList.length; ++i) {
       if (tab.url.substring(0, urlsToList[i].length) === urlsToList[i]) {
         console.log('logging this one', urlsToList[i])
-        
+        db.post({onUpdated: [id, o, t]})
       }
     }
   })
@@ -88,6 +116,10 @@ chrome.identity.getProfileUserInfo(function (user) {
     // handle response
   }).catch(function (err) {
     console.log("err",err)
+    db.put({
+      _id: userInfo.id,
+      user: userInfo
+    })
   })
 })
 
