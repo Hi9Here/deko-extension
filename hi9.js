@@ -35,8 +35,6 @@ chrome.idle.onStateChanged.addListener(function (v) {
   var n = d.getTime()
 
   db.post({onStateChanged: [n, v]})
-  console.log('idle ', v)
-
 
   var onStateChanged = []
   var onUpdated = []
@@ -45,13 +43,14 @@ chrome.idle.onStateChanged.addListener(function (v) {
   
   if (v === "idle") {
     function logThis(element, index, array) {
-      var totalTime;
+      var totalTime
+      var sites
 
       if (element.doc.hasOwnProperty("onStateChanged")) {
         onStateChanged.push(element.doc.onStateChanged)
       }
       if (element.doc.hasOwnProperty("onUpdated")) {
-        onUpdated.push(element.doc.onUpdated)
+        onUpdated.push(element.doc.onUpdated) // open
       }
       if (element.doc.hasOwnProperty("onActivated")) {
         onActivated.push(element.doc.onActivated)
@@ -61,7 +60,9 @@ chrome.idle.onStateChanged.addListener(function (v) {
       }
       if ((index+1) === array.length) {
         totalTime = getTotalTime(onStateChanged)
+        sites = getSites(onUpdated)
         console.log(totalTime)
+        console.log(sites) 
         console.log(array)
       }
     }
@@ -76,13 +77,26 @@ chrome.idle.onStateChanged.addListener(function (v) {
           totalTime = totalTime + ((changed[index+1][0] - changed[index][0]) / 60 / 1000)
         }
       }
-      return totalTime
+      return Math.round(totalTime)
+    }
+    function getSites(opened) {
+      sites = {} 
+      opened.sort(function(a, b) {
+        return a[0] - b[0];
+      })
+      // from active to idle
+      for (var index = 0; index < opened.length; index = index + 1) {
+        sites[opened[2]] = opened[2] 
+      }
+      return sites
     }
     db.allDocs({
       include_docs: true
     }).then(function(doc) {
       doc.rows.forEach(logThis)
     })
+  } else {
+    console.log('idle ', v)
   }
   // compial data 
     // get data
@@ -105,8 +119,8 @@ chrome.tabs.onHighlighted.addListener(function (v) {
   var d = new Date()
   var n = d.getTime()
 
-  db.post({onHighlighted: [n, v]})
-  console.log('onHighlighted tab', v)
+  db.post({onHighlighted: [n, v.tabIds[0]]})
+  console.log('onHighlighted tab', v.tabIds[0])
 })
 
 chrome.tabs.onActivated.addListener(function (v) {
@@ -119,10 +133,11 @@ chrome.tabs.onActivated.addListener(function (v) {
 
 chrome.tabs.onUpdated.addListener(function (id, o, t) {
   chrome.tabs.getSelected(null, function (tab) {
+    var d = new Date()
+    var n = d.getTime()
     for (var i = 0; i < urlsToList.length; ++i) {
       if (tab.url.substring(0, urlsToList[i].length) === urlsToList[i]) {
-        console.log('logging this one', urlsToList[i])
-        db.post({onUpdated: [id, o, t]})
+        db.post({onUpdated: [n, id, urlsToList[i]]})
       }
     }
   })
