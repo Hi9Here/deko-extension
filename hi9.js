@@ -61,19 +61,22 @@ chrome.idle.onStateChanged.addListener(function (v) {
       }
       if ((index+1) === array.length) {
         totalTime = getTotalTime(onStateChanged)
+        console.log(totalTime)
         console.log(array)
       }
     }
     function getTotalTime(changed) {
+      totalTime =0 
       changed.sort(function(a, b) {
         return a[0] - b[0];
       })
       // from active to idle
       for (var index = 0; index+1 < changed.length; index = index + 1) {
         if (changed[index][1] === "active" && changed[index+1][1] === "idle") {
-          console.log(changed[index+1][0] - changed[index][0])
+          totalTime = totalTime + ((changed[index+1][0] - changed[index][0]) / 60 / 1000)
         }
       }
+      return totalTime
     }
     db.allDocs({
       include_docs: true
