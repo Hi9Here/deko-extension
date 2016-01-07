@@ -36,27 +36,46 @@ chrome.idle.onStateChanged.addListener(function (v) {
 
   db.post({onStateChanged: [n, v]})
   console.log('idle ', v)
-  var d = new Date()
-  var n = d.getTime()
 
-  db.post({idle: [n, v]})
 
+  var onStateChanged = []
+  var onUpdated = []
+  var onActivated = []
+  var onHighlighted = []
+  
   if (v === "idle") {
     function logThis(element, index, array) {
-      var loggingThis = {}
-      var onStateChanged = [] 
-      if (element.doc.hasOwnProperty("idle")) {
-        onStateChanged.push(element.doc.idle)
+      var totalTime;
+
+      if (element.doc.hasOwnProperty("onStateChanged")) {
+        onStateChanged.push(element.doc.onStateChanged)
       }
-      console.log(element.doc)
-    
+      if (element.doc.hasOwnProperty("onUpdated")) {
+        onUpdated.push(element.doc.onUpdated)
+      }
+      if (element.doc.hasOwnProperty("onActivated")) {
+        onActivated.push(element.doc.onActivated)
+      }
+      if (element.doc.hasOwnProperty("onHighlighted")) {
+        onHighlighted.push(element.doc.onHighlighted)
+      }
+      if ((index+1) === array.length) {
+        totalTime = getTotalTime(onStateChanged)
+        console.log(array)
+      }
     }
-    console.log('idle ', v)
+    function getTotalTime(changed) {
+      // from active to idle
+      for (var index = 0; index+1 < changed.length; index = index + 1) {
+        if (changed[index][1] === "active" && changed[index+1][1] === "idle") {
+          console.log(changed[index+1][0] - changed[index][0])
+        }
+      }
+    }
     db.allDocs({
       include_docs: true
     }).then(function(doc) {
       doc.rows.forEach(logThis)
-      console.log(doc)
     })
   }
   // compial data 
