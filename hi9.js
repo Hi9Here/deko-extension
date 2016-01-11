@@ -8,8 +8,6 @@ chrome.idle.onStateChanged.addListener(function (v) {
   var d = new Date()
   var n = d.getTime()
 
-  db.post({onStateChanged: [n, v]})
-  
   var onStateChanged = []
   var onUpdated = []
   var onActivated = []
@@ -74,9 +72,13 @@ chrome.idle.onStateChanged.addListener(function (v) {
     }).then(function(doc) {
       doc.rows.forEach(logThis)
     })
+
   } else {
     console.log('idle ', v)
   }
+  db.post({onStateChanged: [n, v]}).catch(function (err) {
+    console.log(err);
+  });
   // compial data 
     // get data
     // time on facebook/github/hi9/other
