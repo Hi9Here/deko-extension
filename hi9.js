@@ -2,40 +2,14 @@ var urlsToList = ['https://hi9.uk/', 'https://github.com/', 'chrome-devtools://d
 var idle = []
 var userInfo
 var myFirebaseRef = new Firebase('https://hi9site.firebaseio.com/testing')
-var authData = myFirebaseRef.getAuth()
 var db = new PouchDB('hi9')
-
-function authHandler (error, authData) {
-  if (error) {
-    console.log('Login Failed!', error)
-  } else {
-    console.log('Authenticated successfully with payload:', authData)
-  }
-}
-
-if (authData) {
-
-  console.log('User ' + authData.uid + ' is logged in with ' + authData.provider)
-  var data = {}
-  data[authData.uid] = authData.google.email
-  myFirebaseRef.set(data)
-
-} else {
-
-  console.log('User is logged out')
-
-  myFirebaseRef.authWithOAuthPopup('google', authHandler, {
-    remember: 'sessionOnly',
-    scope: 'email'
-  })
-}
 
 chrome.idle.onStateChanged.addListener(function (v) {
   var d = new Date()
   var n = d.getTime()
 
   db.post({onStateChanged: [n, v]})
-
+  
   var onStateChanged = []
   var onUpdated = []
   var onActivated = []
@@ -61,9 +35,9 @@ chrome.idle.onStateChanged.addListener(function (v) {
       if ((index+1) === array.length) {
         totalTime = getTotalTime(onStateChanged)
         sites = getSites(onUpdated)
+        myFirebaseRef.push({ 'time': totalTime, 'sites': sites})
         console.log(totalTime)
         console.log(sites) 
-        console.log(array)
       }
     }
     function getTotalTime(changed) {
@@ -86,7 +60,12 @@ chrome.idle.onStateChanged.addListener(function (v) {
       })
       // from active to idle
       for (var index = 0; index < opened.length; index = index + 1) {
-        sites[opened[2]] = opened[2] 
+        var key =  encodeURIComponent(opened[index][2]).replace(/\./g, '%2E')
+        if (sites.hasOwnProperty(key)) {
+          sites[key] = 1 + sites[key]
+        } else {
+          sites[key] = 1 
+        }
       }
       return sites
     }
