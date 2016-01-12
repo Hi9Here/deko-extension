@@ -142,6 +142,14 @@ chrome.identity.getProfileUserInfo(function (user) {
       user: userInfo
     })
   })
+
+  var firebaseWhiteList = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/white-list/")
+  // Basic usage of .once() to read the data located at firebaseRef.
+  firebaseWhiteList.once('value', function(dataSnapshot) {
+    var whiteList = dataSnapshot.val()
+    urlsToList = []
+    Object.keys(whiteList).forEach(function(key) {
+      urlsToList.push(whiteList[key].link)
+    })
+  })
 })
-
-
