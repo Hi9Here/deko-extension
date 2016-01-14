@@ -1,7 +1,6 @@
 var urlsToList = ['https://hi9.uk/', 'https://github.com/', 'chrome-devtools://devtools']
 var idle = []
 var userInfo
-var myFirebaseRef = new Firebase('https://hi9site.firebaseio.com/testing')
 var db = new PouchDB('hi9')
 
 chrome.idle.onStateChanged.addListener(function (v) {
@@ -12,34 +11,65 @@ chrome.idle.onStateChanged.addListener(function (v) {
   var onUpdated = []
   var onActivated = []
   var onHighlighted = []
-  
+  var del_ids = []
+  var start = 0
+
   if (v === "idle") {
     function logThis(element, index, array) {
-      var totalTime
-      var sites
-
       if (element.doc.hasOwnProperty("onStateChanged")) {
         onStateChanged.push(element.doc.onStateChanged)
+        if (index === 0) {
+          start = element.doc.onStateChanged[0]
+        }
+        del_ids.push(element.id)
       }
       if (element.doc.hasOwnProperty("onUpdated")) {
         onUpdated.push(element.doc.onUpdated) // open
+        if (index === 0) {
+          start = element.doc.onUpdated[0]
+        }
+        del_ids.push(element.id)
       }
       if (element.doc.hasOwnProperty("onActivated")) {
         onActivated.push(element.doc.onActivated)
+        if (index === 0) {
+          start = element.doc.onActivated[0]
+        }
+        del_ids.push(element.id)
       }
       if (element.doc.hasOwnProperty("onHighlighted")) {
         onHighlighted.push(element.doc.onHighlighted)
+        if (index === 0) {
+          start = element.doc.onHighlighted[0]
+        }
+        del_ids.push(element.id)
       }
       if ((index+1) === array.length) {
-        totalTime = getTotalTime(onStateChanged)
-        sites = getSites(onUpdated)
-        myFirebaseRef.push({'time': totalTime, 'sites': sites, 'id': userInfo.id})
-        console.log(totalTime)
-        console.log(sites) 
+        var myFirebaseRef = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/log/")
+        myFirebaseRef.push({'time': getTotalTime(onStateChanged), 'sites': getSites(onUpdated, onActivated), 'id': userInfo.id, 'end': n, 'start': start}, deleteOld())
+        // myFirebaseRef = null // clear up
+      }
+      function deleteOld() {
+        del_ids.forEach(deleteId)
+        onStateChanged = []
+        onUpdated = []
+        onActivated = []
+        onHighlighted = []
+        del_ids = []
+        start = 0
+      }
+      function deleteId(id) {
+        db.get(id).then(function(doc) {
+          return db.remove(doc);
+        }).then(function (result) {
+          console.log(result)
+        }).catch(function (err) {
+          console.log(err)
+        })
       }
     }
     function getTotalTime(changed) {
-      totalTime =0 
+      totalTime=0 
       changed.sort(function(a, b) {
         return a[0] - b[0];
       })
@@ -51,9 +81,12 @@ chrome.idle.onStateChanged.addListener(function (v) {
       }
       return Math.round(totalTime)
     }
-    function getSites(opened) {
+    function getSites(opened, activate) {
       sites = {} 
       opened.sort(function(a, b) {
+        return a[0] - b[0];
+      })
+      activate.sort(function(a, b) {
         return a[0] - b[0];
       })
       // from active to idle
@@ -76,9 +109,11 @@ chrome.idle.onStateChanged.addListener(function (v) {
   } else {
     console.log('idle ', v)
   }
-  db.post({onStateChanged: [n, v]}).catch(function (err) {
-    console.log(err);
-  });
+  if (v !== "locked") {
+    db.post({onStateChanged: [n, v]}).catch(function (err) {
+      console.log(err);
+    });
+  } 
   // compial data 
     // get data
     // time on facebook/github/hi9/other
@@ -117,7 +152,6 @@ chrome.tabs.onUpdated.addListener(function (id, o, t) {
     var d = new Date()
     var n = d.getTime()
     for (var i = 0; i < urlsToList.length; ++i) {
-
       if (tab.url.substring(0, urlsToList[i].length) === urlsToList[i] || 
           tab.url.substring(0, urlsToList[i].length + 8) === "https://" + urlsToList[i] ||
           tab.url.substring(0, urlsToList[i].length + 7) === "http://" + urlsToList[i] || 
@@ -156,5 +190,35 @@ chrome.identity.getProfileUserInfo(function (user) {
     Object.keys(whiteList).forEach(function(key) {
       urlsToList.push(whiteList[key].link)
     })
+    db.get("whiteList").then(function(doc) {
+      return db.put({
+         _id: "whiteList",
+         _rev: doc._rev,
+         whiteList: whiteList
+      });
+    }).then(function(response) {
+      console.log("response",response)
+      // handle response
+    }).catch(function (err) {
+      console.log("err",err)
+      db.put({
+         _id: "whiteList",
+         whiteList: whiteList
+      })
+    })
+  }, function() {
+    var whiteList = dataSnapshot.val()
+    urlsToList = []
+    Object.keys(whiteList).forEach(function(key) {
+      urlsToList.push(whiteList[key].link)
+    })
+    db.get("whiteList").then(function(doc) {
+      return urlsToList = doc.value
+    }).then(function(response) {
+      console.log("response",response)
+    }).catch(function (err) {
+      console.log("err",err)
+    })
   })
+
 })
