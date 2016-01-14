@@ -33,7 +33,7 @@ chrome.idle.onStateChanged.addListener(function (v) {
       if ((index+1) === array.length) {
         totalTime = getTotalTime(onStateChanged)
         sites = getSites(onUpdated)
-        myFirebaseRef.push({ 'time': totalTime, 'sites': sites})
+        myFirebaseRef.push({'time': totalTime, 'sites': sites, 'id': userInfo.id})
         console.log(totalTime)
         console.log(sites) 
       }
