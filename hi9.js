@@ -1,4 +1,4 @@
-var urlsToList = ['https://hi9.uk/', 'https://github.com/', 'chrome-devtools://devtools']
+var urlsToList = ['https://hi9.uk/', 'https://github.com/', 'chrome-devtools://devtools', "chrome-extension://"]
 var idle = []
 var userInfo
 var db = new PouchDB('hi9')
@@ -181,6 +181,14 @@ chrome.identity.getProfileUserInfo(function (user) {
       user: userInfo
     })
   })
+  // load if you can
+  db.get("whiteList").then(function(doc) {
+    return urlsToList = doc.whiteList
+  }).then(function(response) {
+    console.log("response",response)
+  }).catch(function (err) {
+    console.log("err",err)
+  })
 
   var firebaseWhiteList = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/white-list/")
   // Basic usage of .once() to read the data located at firebaseRef.
@@ -206,19 +214,5 @@ chrome.identity.getProfileUserInfo(function (user) {
          whiteList: whiteList
       })
     })
-  }, function() {
-    var whiteList = dataSnapshot.val()
-    urlsToList = []
-    Object.keys(whiteList).forEach(function(key) {
-      urlsToList.push(whiteList[key].link)
-    })
-    db.get("whiteList").then(function(doc) {
-      return urlsToList = doc.value
-    }).then(function(response) {
-      console.log("response",response)
-    }).catch(function (err) {
-      console.log("err",err)
-    })
   })
-
 })
