@@ -1,7 +1,7 @@
 {
     "name": "Hi9",
     "description": "Hi9 is a way for people to be connected with what matters",
-    "version": "1.0",
+    "version": "1.0.2",
     "incognito": "split",
     "chrome_url_overrides": { "newtab": "redirect.html" },
     "manifest_version": 2,
