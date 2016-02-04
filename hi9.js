@@ -183,9 +183,9 @@ chrome.identity.getProfileUserInfo(function (user) {
   })
   // load if you can
   db.get("whiteList").then(function(doc) {
-    return urlsToList = doc.whiteList
+    return doc.whiteList
   }).then(function(response) {
-    console.log("response",response)
+    urlsToList = response
   }).catch(function (err) {
     console.log("err",err)
   })
