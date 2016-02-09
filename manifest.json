@@ -1,11 +1,11 @@
 {
     "name": "Hi9",
-    "description": "Hi9 is a way for people to be connected with what matters",
-    "version": "1.0.2",
+    "description": "Hi9 - Organise Everything",
+    "version": "1.0.3",
     "incognito": "split",
     "chrome_url_overrides": { "newtab": "redirect.html" },
     "manifest_version": 2,
-    "permissions": ["identity", "identity.email", "tabs", "idle", "activeTab", "https://hi9.uk/", "bookmarks", "storage"],  
+    "permissions": ["identity", "identity.email", "tabs", "idle", "activeTab", "https://hi9.uk/", "bookmarks", "storage"],
     "browser_action": {
         "default_icon": "icon.png",
         "default_popup": "popup.html"
