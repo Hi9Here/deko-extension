@@ -1,7 +1,7 @@
 {
     "name": "Hi9",
     "description": "Hi9 - Organise Everything",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "incognito": "split",
     "chrome_url_overrides": { "newtab": "redirect.html" },
     "manifest_version": 2,
