@@ -51,30 +51,35 @@ document.addEventListener('DOMContentLoaded', function() {
     var loadDocument
     var images 
     var favicon
-    function getDoc (html) {
+    function getDoc(html) {
       parser = new DOMParser()
 
       loadDocument = parser.parseFromString(html, "text/html")
-      images = getImages(getBase(url), loadDocument.images)
+      images = getImages(getBase(url), loadDocument.images, html)
       favicon = getFavicon(getBase(url), loadDocument)
-      debugger
+      var titleH2 = document.getElementById("title")
+      titleH2.innerText = loadDocument.title
     }
-    function getBase (theUrl) {
+    function getBase(theUrl) {
       var re = /(https?:\/\/[^\/]*)/gi
       var res = theUrl.match(re)
       if (Array.isArray(res) && res.length > 0) {
         return res[0]
       }
     }
-    function getImages(base, got) {
+    function getImages(base, got, html) {
       var images = [].slice.call(got)
-      var output = []
-      for (var i = 0; i < images.length; i++) {
-        var re = /src="\//gi; 
-        var subst = 'src="'+base+'/'; 
-        output.push(images[i].outerHTML.replace(re, subst))
+      if (images.length) {
+        var output = []
+        for (var i = 0; i < images.length; i++) {
+          var re = /src="\//gi; 
+          var subst = 'src="'+base+'/'; 
+          output.push(images[i].outerHTML.replace(re, subst))
+        }
       }
-      return output
+      var output = []
+      var re = /<img[^>]+src="([^">]+)"/gi 
+       
     }
     function getFavicon (base, doc) {
       var html = doc.children[0]
@@ -89,8 +94,16 @@ document.addEventListener('DOMContentLoaded', function() {
               console.log("png")
               if (meta[i].attributes[attr].textContent.startsWith("//")) {
                 loadImage("http:"+meta[i].attributes[attr].textContent)
-              } else {
+              } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
+                loadImage(base + meta[i].attributes[attr].textContent)
+              } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
                 loadImage(meta[i].attributes[attr].textContent)
+              } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
+                loadImage(meta[i].attributes[attr].textContent)
+              } else {
+                var arrayUrl = url.split('/')
+                arrayUrl.pop()
+                loadImage(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
               }
             }
             
@@ -99,21 +112,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
           }
         }
-      } 
+      }
       return base+"/favicon.ico"
     }
     function loadImage(theUrl) {
       var img = new Image()
-      // img.setAttribute('crossOrigin', 'anonymous')
       var canvas = document.getElementById("canvas");
       var imageAsUrl = document.getElementById("imageAsUrl")
       ctx = canvas.getContext("2d")
       var gotIt = false
 
       img.onload = function () {
-        img.setAttribute('crossOrigin', 'anonymous')
-        if (!gotIt && img.width > 100) {
-          
+        if (!gotIt && img.width > 200) {
+          gotIt = true
           canvas.height = canvas.width * (img.height / img.width)
   
           var oc = document.createElement('canvas')
@@ -121,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
           oc.width = img.width * 0.5
           oc.height = img.height * 0.5
+          octx.clearRect(0, 0, canvas.width, canvas.height)
           octx.drawImage(img, 0, 0, oc.width, oc.height);
           octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5)
 
@@ -128,10 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
           
           img.setAttribute('crossOrigin', 'anonymous')
           imageAsUrl.value = canvas.toDataURL("image/jpeg")
-          debugger
+
         }
      }
-     img.src = theUrl
+     if (!gotIt) {
+       img.src = theUrl
+     }
     }
 
     // Put the image URL in Google search.
