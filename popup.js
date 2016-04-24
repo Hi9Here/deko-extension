@@ -1,56 +1,58 @@
 
-function getCurrentTabUrl(callback) {
-  var queryInfo = {
-    active: true,
-    currentWindow: true
-  }
-  chrome.tabs.query(queryInfo, function(tabs) {
-    var tab = tabs[0]
-    var url = tab.url
-    console.assert(typeof url == 'string', 'tab.url should be a string')
-
-    callback(url)
-  })
-}
-
-function getHTML(link, callback) {
-  function getBase(theUrl) {
-    var re = /(https?:\/\/[^\/]*)/gi
-    var res = theUrl.match(re)
-    if (Array.isArray(res) && res.length > 0) {
-      return res[0]
-    }
-  }
-  function makeHttpObject() {
-    try {return new XMLHttpRequest()}
-    catch (error) {}
-    try {return new ActiveXObject("Msxml2.XMLHTTP")}
-    catch (error) {}
-    try {return new ActiveXObject("Microsoft.XMLHTTP")}
-    catch (error) {}
-  
-    throw new Error("Could not create HTTP request object.")
-  }
-  var request = makeHttpObject();
-  request.open("GET", link, true);
-  request.send(null);
-  request.onreadystatechange = function() {
-    if (request.readyState === 3) {
-      callback(request.responseText, 0)
-    }
-  }
-  var requestB = makeHttpObject();
-  requestB.open("GET", getBase(link), true);
-  requestB.send(null);
-  requestB.onreadystatechange = function() {
-    if (requestB.readyState === 3) {
-      callback(requestB.responseText, 1)
-    }
-  }
-}
 
 document.addEventListener('DOMContentLoaded', function() {
   var addMe = {}
+
+  function getCurrentTabUrl(callback) {
+    var queryInfo = {
+      active: true,
+      currentWindow: true
+    }
+    chrome.tabs.query(queryInfo, function(tabs) {
+      var tab = tabs[0]
+      var url = tab.url
+      console.assert(typeof url == 'string', 'tab.url should be a string')
+
+      callback(url)
+      addMe.url = url
+    })
+  }
+
+  function getHTML(link, callback) {
+    function getBase(theUrl) {
+      var re = /(https?:\/\/[^\/]*)/gi
+      var res = theUrl.match(re)
+      if (Array.isArray(res) && res.length > 0) {
+        return res[0]
+      }
+    }
+    function makeHttpObject() {
+      try {return new XMLHttpRequest()}
+      catch (error) {}
+      try {return new ActiveXObject("Msxml2.XMLHTTP")}
+      catch (error) {}
+      try {return new ActiveXObject("Microsoft.XMLHTTP")}
+      catch (error) {}
+  
+      throw new Error("Could not create HTTP request object.")
+    }
+    var request = makeHttpObject();
+    request.open("GET", link, true);
+    request.send(null);
+    request.onreadystatechange = function() {
+      if (request.readyState === 3) {
+        callback(request.responseText, 0)
+      }
+    }
+    var requestB = makeHttpObject();
+    requestB.open("GET", getBase(link), true);
+    requestB.send(null);
+    requestB.onreadystatechange = function() {
+      if (requestB.readyState === 3) {
+        callback(requestB.responseText, 1)
+      }
+    }
+  }
   function getBase(theUrl) {
     var re = /(https?:\/\/[^\/]*)/gi
     var res = theUrl.match(re)
