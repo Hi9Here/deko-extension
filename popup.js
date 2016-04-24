@@ -1,31 +1,26 @@
 
 function getCurrentTabUrl(callback) {
-  // Query filter to be passed to chrome.tabs.query - see
-  // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
     active: true,
     currentWindow: true
-  };
-
+  }
   chrome.tabs.query(queryInfo, function(tabs) {
+    var tab = tabs[0]
+    var url = tab.url
+    console.assert(typeof url == 'string', 'tab.url should be a string')
 
-    var tab = tabs[0];
-    var url = tab.url;
-
-    console.assert(typeof url == 'string', 'tab.url should be a string');
-
-    callback(url);
-  });
+    callback(url)
+  })
 }
 
-/**
- * @param {string} searchTerm - Search term for Google Image search.
- * @param {function(string,number,number)} callback - Called when an image has
- *   been found. The callback gets the URL, width and height of the image.
- * @param {function(string)} errorCallback - Called when the image is not found.
- *   The callback gets a string that describes the failure reason.
- */
 function getHTML(link, callback) {
+  function getBase(theUrl) {
+    var re = /(https?:\/\/[^\/]*)/gi
+    var res = theUrl.match(re)
+    if (Array.isArray(res) && res.length > 0) {
+      return res[0]
+    }
+  }
   function makeHttpObject() {
     try {return new XMLHttpRequest()}
     catch (error) {}
@@ -41,46 +36,78 @@ function getHTML(link, callback) {
   request.send(null);
   request.onreadystatechange = function() {
     if (request.readyState === 3) {
-      callback(request.responseText)
+      callback(request.responseText, 0)
+    }
+  }
+  var requestB = makeHttpObject();
+  requestB.open("GET", getBase(link), true);
+  requestB.send(null);
+  requestB.onreadystatechange = function() {
+    if (requestB.readyState === 3) {
+      callback(requestB.responseText, 1)
     }
   }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  function getBase(theUrl) {
+    var re = /(https?:\/\/[^\/]*)/gi
+    var res = theUrl.match(re)
+    if (Array.isArray(res) && res.length > 0) {
+      return res[0]
+    }
+  }
   getCurrentTabUrl(function(url) {
     var loadDocument
-    var images 
-    var favicon
-    function getDoc(html) {
+    function getDoc(html, base) {
       parser = new DOMParser()
-
+      
       loadDocument = parser.parseFromString(html, "text/html")
-      images = getImages(getBase(url), loadDocument.images, html)
-      favicon = getFavicon(getBase(url), loadDocument)
-      var titleH2 = document.getElementById("title")
-      titleH2.innerText = loadDocument.title
-    }
-    function getBase(theUrl) {
-      var re = /(https?:\/\/[^\/]*)/gi
-      var res = theUrl.match(re)
-      if (Array.isArray(res) && res.length > 0) {
-        return res[0]
+      getImages(getBase(url), loadDocument.images, html)
+      getFavicon(getBase(url), loadDocument)
+      if (!base) {
+        var titleH2 = document.getElementById("title")
+        titleH2.innerText = loadDocument.title 
+        var descP = document.getElementById("desc")
+        descP = "getDescription(loadDocument)"
       }
     }
+
     function getImages(base, got, html) {
       var images = [].slice.call(got)
       if (images.length) {
+        html = ""
         var output = []
         for (var i = 0; i < images.length; i++) {
           var re = /src="\//gi; 
           var subst = 'src="'+base+'/'; 
-          output.push(images[i].outerHTML.replace(re, subst))
+          html = html + images[i].outerHTML.replace(re, subst)
         }
       }
-      var output = []
       var re = /<img[^>]+src="([^">]+)"/gi 
-       
+      while ((m = re.exec(html)) !== null) {
+        if (m.index === re.lastIndex) {
+          re.lastIndex++;
+        }
+        loadImage(m[1])
+      }
     }
+    // function getDescription(doc) {
+      // var html = doc.children[0]
+      // var head = html.childNodes.item('head')
+      // var meta = [].slice.call(head.childNodes)
+      // for (var i = 0; i < meta.length; i++) {
+        // 
+        // if (meta[i].attributes) {
+          // for (var attr = 0; attr < meta[i].attributes.length; attr++) {
+            // if (meta[i].attributes[attr].textContent) {
+// 
+            // }
+          // }
+        // }
+      // }
+      // return 
+    // }
     function getFavicon (base, doc) {
       var html = doc.children[0]
       var head = html.childNodes.item('head')
@@ -91,8 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
           for (var attr = 0; attr < meta[i].attributes.length; attr++) {
             
             if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png")) {
-              console.log("png")
               if (meta[i].attributes[attr].textContent.startsWith("//")) {
+                loadImage("https:"+meta[i].attributes[attr].textContent)
                 loadImage("http:"+meta[i].attributes[attr].textContent)
               } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
                 loadImage(base + meta[i].attributes[attr].textContent)
@@ -106,14 +133,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadImage(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
               }
             }
-            
-            console.log("t",meta[i].attributes[attr].textContent)
-            console.log("n",meta[i].attributes[attr].name)
-            
           }
         }
       }
-      return base+"/favicon.ico"
     }
     function loadImage(theUrl) {
       var img = new Image()
@@ -123,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var gotIt = false
 
       img.onload = function () {
-        if (!gotIt && img.width > 200) {
+        if (!gotIt && img.width > 175) {
           gotIt = true
           canvas.height = canvas.width * (img.height / img.width)
   
@@ -132,23 +154,23 @@ document.addEventListener('DOMContentLoaded', function() {
   
           oc.width = img.width * 0.5
           oc.height = img.height * 0.5
+
           octx.clearRect(0, 0, canvas.width, canvas.height)
+
           octx.drawImage(img, 0, 0, oc.width, oc.height);
           octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5)
 
           ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, canvas.width, canvas.height)
           
-          img.setAttribute('crossOrigin', 'anonymous')
           imageAsUrl.value = canvas.toDataURL("image/jpeg")
 
         }
-     }
-     if (!gotIt) {
-       img.src = theUrl
-     }
+      }
+      if (!gotIt) {
+        img.src = theUrl
+      }
     }
 
-    // Put the image URL in Google search.
     getHTML(url, getDoc)
     
   })
