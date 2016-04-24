@@ -55,9 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
       parser = new DOMParser()
 
       loadDocument = parser.parseFromString(html, "text/html")
-      debugger
       images = getImages(getBase(url), loadDocument.images)
-      debugger
       favicon = getFavicon(getBase(url), loadDocument)
       debugger
     }
@@ -87,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (meta[i].attributes) {
           for (var attr = 0; attr < meta[i].attributes.length; attr++) {
             
-            if (meta[i].attributes[attr].textContent.endsWith(".png")) {
+            if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png")) {
               console.log("png")
               if (meta[i].attributes[attr].textContent.startsWith("//")) {
                 loadImage("http:"+meta[i].attributes[attr].textContent)
@@ -105,24 +103,33 @@ document.addEventListener('DOMContentLoaded', function() {
       return base+"/favicon.ico"
     }
     function loadImage(theUrl) {
-      img = new Image()
+      var img = new Image()
       // img.setAttribute('crossOrigin', 'anonymous')
-      canvas = document.getElementById("canvas");
-
+      var canvas = document.getElementById("canvas");
+      var imageAsUrl = document.getElementById("imageAsUrl")
       ctx = canvas.getContext("2d")
+      var gotIt = false
+
       img.onload = function () {
-        canvas.height = canvas.width * (img.height / img.width)
+        img.setAttribute('crossOrigin', 'anonymous')
+        if (!gotIt && img.width > 100) {
+          
+          canvas.height = canvas.width * (img.height / img.width)
+  
+          var oc = document.createElement('canvas')
+          var octx = oc.getContext('2d')
+  
+          oc.width = img.width * 0.5
+          oc.height = img.height * 0.5
+          octx.drawImage(img, 0, 0, oc.width, oc.height);
+          octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5)
 
-        var oc = document.createElement('canvas')
-        var octx = oc.getContext('2d')
-
-        oc.width = img.width * 0.5
-        oc.height = img.height * 0.5
-        octx.drawImage(img, 0, 0, oc.width, oc.height);
-        octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5)
-
-        ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, canvas.width, canvas.height)
-        // canvas.toDataURL("image/jpeg")
+          ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, canvas.width, canvas.height)
+          
+          img.setAttribute('crossOrigin', 'anonymous')
+          imageAsUrl.value = canvas.toDataURL("image/jpeg")
+          debugger
+        }
      }
      img.src = theUrl
     }
