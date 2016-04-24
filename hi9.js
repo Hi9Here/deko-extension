@@ -156,7 +156,7 @@ chrome.tabs.onUpdated.addListener(function (id, o, t) {
           tab.url.substring(0, urlsToList[i].length + 8) === "https://" + urlsToList[i] ||
           tab.url.substring(0, urlsToList[i].length + 7) === "http://" + urlsToList[i] || 
           tab.url.substring(0, urlsToList[i].length + 12) === "https://www." + urlsToList[i] ||
-          tab.url.substring(0, urlsToList[i].length + 11 ) === "http://www." + urlsToList[i]) {
+          tab.url.substring(0, urlsToList[i].length + 11) === "http://www." + urlsToList[i]) {
         db.post({onUpdated: [n, id, urlsToList[i]]})
       }
     }
