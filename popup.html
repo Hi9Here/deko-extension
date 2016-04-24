@@ -6,30 +6,15 @@
  -->
 <html>
   <head>
-    <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
-      }
-    </style>
-
+    
+    <script src="firebase.js"></script>
     <script src="popup.js"></script>
+
   </head>
   <body>
-    <div id="status"></div>
-    <img id="image-result" hidden>
-    <h2 id="title"></h2>
     <canvas id="canvas" width="250"></canvas>
-    <input id="imageAsUrl"></input>
-    <p id="desc"></p>
+    <h2 id="title"></h2>
+    <button id="myBtn">Add it</button>
   </body>
 </html>
 

@@ -50,6 +50,7 @@ function getHTML(link, callback) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  var addMe = {}
   function getBase(theUrl) {
     var re = /(https?:\/\/[^\/]*)/gi
     var res = theUrl.match(re)
@@ -63,13 +64,16 @@ document.addEventListener('DOMContentLoaded', function() {
       parser = new DOMParser()
       
       loadDocument = parser.parseFromString(html, "text/html")
-      getImages(getBase(url), loadDocument.images, html)
-      getFavicon(getBase(url), loadDocument)
+      // getImages(getBase(url), loadDocument.images, html)
+      if (base) {
+        getFavicon(getBase(url), loadDocument)
+      }
       if (!base) {
         var titleH2 = document.getElementById("title")
-        titleH2.innerText = loadDocument.title 
-        var descP = document.getElementById("desc")
-        descP = "getDescription(loadDocument)"
+        titleH2.innerText = loadDocument.title
+        addMe.title = loadDocument.title
+        // var descP = document.getElementById("desc")
+        addMe.data = "Getting Description"// "getDescription(loadDocument)"
       }
     }
 
@@ -145,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var gotIt = false
 
       img.onload = function () {
-        if (!gotIt && img.width > 175) {
+        if (!gotIt && img.width > 120) {
           gotIt = true
           canvas.height = canvas.width * (img.height / img.width)
   
@@ -162,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
           ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, canvas.width, canvas.height)
           
-          imageAsUrl.value = canvas.toDataURL("image/jpeg")
+          addMe.image = canvas.toDataURL("image/jpeg")
 
         }
       }
@@ -173,5 +177,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     getHTML(url, getDoc)
     
+  })
+  var myBtn = document.getElementById("myBtn")
+  myBtn.addEventListener("click", function(){
+    var firebaseIo = new Firebase('https://open-elements.firebaseio.com/all/marcus6666')
+    firebaseIo.push(addMe) 
   })
 })
