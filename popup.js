@@ -143,31 +143,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    function loadImage(theUrl) {
+    
+
+    getHTML(url, getDoc)
+    
+  })
+  function loadImage(theUrl) {
       var img = new Image()
       var canvas = document.getElementById("canvas");
       var imageAsUrl = document.getElementById("imageAsUrl")
-      ctx = canvas.getContext("2d")
       var gotIt = false
 
       img.onload = function () {
         if (!gotIt && img.width > 120) {
           gotIt = true
           canvas.height = canvas.width * (img.height / img.width)
-  
-          var oc = document.createElement('canvas')
-          var octx = oc.getContext('2d')
-  
-          oc.width = img.width * 0.5
-          oc.height = img.height * 0.5
-
-          octx.clearRect(0, 0, canvas.width, canvas.height)
-
-          octx.drawImage(img, 0, 0, oc.width, oc.height);
-          octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5)
-
-          ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, canvas.width, canvas.height)
-          
+ 
+          var octx = canvas.getContext('2d')
+          octx.drawImage(img, 0, 0, canvas.width, canvas.height)
           addMe.image = canvas.toDataURL("image/jpeg")
 
         }
@@ -176,10 +169,12 @@ document.addEventListener('DOMContentLoaded', function() {
         img.src = theUrl
       }
     }
-
-    getHTML(url, getDoc)
-    
+  var imageUrl = document.getElementById("imageUrl")
+  
+  imageUrl.addEventListener("change", function(){
+    loadImage(imageUrl.value)
   })
+
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
     var firebaseIo = new Firebase('https://open-elements.firebaseio.com/all/marcus6666')
