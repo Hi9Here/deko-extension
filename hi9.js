@@ -1,4 +1,4 @@
-var urlsToList = ['https://hi9.uk/', 'https://github.com/', 'chrome-devtools://devtools', "chrome-extension://"]
+var urlsToList = ['https://hi9.uk/']
 var idle = []
 var userInfo
 var db = new PouchDB('hi9')
