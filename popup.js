@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     request.send(null);
     request.onreadystatechange = function() {
       if (request.readyState === 3) {
-        callback(request.responseText, 0)
+        callback(request.responseText, link)
       }
     }
     var requestB = makeHttpObject();
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
     requestB.send(null);
     requestB.onreadystatechange = function() {
       if (requestB.readyState === 3) {
-        callback(requestB.responseText, 1)
+        callback(requestB.responseText, getBase(link))
       }
     }
   }
@@ -128,7 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
       if (meta[i].attributes) {
         for (var attr = 0; attr < meta[i].attributes.length; attr++) {
           
-          if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png")) {
+          if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png") 
+           || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
+           || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
             if (meta[i].attributes[attr].textContent.startsWith("//")) {
               loadImage("https:"+meta[i].attributes[attr].textContent)
               loadImage("http:"+meta[i].attributes[attr].textContent)
@@ -150,35 +152,35 @@ document.addEventListener('DOMContentLoaded', function() {
     getHTML(url, getDoc)
   })
   function loadImage(theUrl) {
-      var img = new Image()
-      var fav = document.getElementById("fav");
-      var canvas = document.getElementById("canvas");
-      var imageAsUrl = document.getElementById("imageAsUrl")
-      var gotIt = false
-      var gotFav = false
+    var img = new Image()
+    var fav = document.getElementById("fav");
+    var canvas = document.getElementById("canvas");
+    var imageAsUrl = document.getElementById("imageAsUrl")
+    var gotIt = false
+    var gotFav = false
 
-      img.onload = function () {
-        if (!gotIt && img.width > 120) {
-          gotIt = true
-          canvas.height = canvas.width * (img.height / img.width)
+    img.onload = function () {
+      if (!gotIt && img.width > 120) {
+        gotIt = true
+        canvas.height = canvas.width * (img.height / img.width)
  
-          var octx = canvas.getContext('2d')
-          octx.drawImage(img, 0, 0, canvas.width, canvas.height)
-          addMe.image = canvas.toDataURL("image/jpeg")
+        var octx = canvas.getContext('2d')
+        octx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        addMe.image = canvas.toDataURL("image/jpeg")
 
-        }
-        if (!gotFav) {
-          gotFav = true
-          fav.height = fav.width * (img.height / img.width)
-          var octx = fav.getContext('2d')
-          octx.drawImage(img, 0, 0, fav.width, fav.height)
-          addMe.fav = canvas.toDataURL("image/jpeg")
-        }
       }
-      if (!gotIt) {
-        img.src = theUrl
+      if (!gotFav) {
+        gotFav = true
+        fav.height = fav.width * (img.height / img.width)
+        var octx = fav.getContext('2d')
+        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        addMe.fav = canvas.toDataURL("image/jpeg")
       }
     }
+    if (!gotIt) {
+      img.src = theUrl
+    }
+  }
   var imageUrl = document.getElementById("imageUrl")
   
   imageUrl.addEventListener("change", function(){
