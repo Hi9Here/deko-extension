@@ -3,6 +3,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   var addMe = {}
 
+  function doStuffWithDom(data) {
+    if (data) {
+      getDoc(data.html, data.url)
+    }
+  }
   function getCurrentTabUrl(callback) {
     var queryInfo = {
       active: true,
@@ -15,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       callback(url)
       addMe.url = url
+      chrome.tabs.sendMessage(tab.id, {text: 'report_back', url: url}, doStuffWithDom)
     })
   }
 
@@ -57,102 +63,99 @@ document.addEventListener('DOMContentLoaded', function() {
     var re = /(https?:\/\/[^\/]*)/gi
     var res = theUrl.match(re)
     if (Array.isArray(res) && res.length > 0) {
+      debugger
       return res[0]
     }
   }
-  getCurrentTabUrl(function(url) {
-    var loadDocument
-    function getDoc(html, base) {
-      parser = new DOMParser()
-      
-      loadDocument = parser.parseFromString(html, "text/html")
-      // getImages(getBase(url), loadDocument.images, html)
-      if (base) {
-        getFavicon(getBase(url), loadDocument)
-      }
-      if (!base) {
-        var titleH2 = document.getElementById("title")
-        titleH2.innerText = loadDocument.title
-        addMe.title = loadDocument.title
-        // var descP = document.getElementById("desc")
-        addMe.data = "Getting Description"// "getDescription(loadDocument)"
+  var loadDocument
+  function getDoc(html, base) {
+    parser = new DOMParser()
+     
+    loadDocument = parser.parseFromString(html, "text/html")
+    // getImages(getBase(url), loadDocument.images, html)
+    if (base) {
+      getFavicon(base, loadDocument)
+    }
+    if (!base) {
+      var titleH2 = document.getElementById("title")
+      titleH2.innerText = loadDocument.title
+      addMe.title = loadDocument.title
+      // var descP = document.getElementById("desc")
+      addMe.data = "Getting Description"// "getDescription(loadDocument)"
+    }
+  }
+  function getImages(base, got, html) {
+    var images = [].slice.call(got)
+    if (images.length) {
+      html = ""
+      var output = []
+      for (var i = 0; i < images.length; i++) {
+        var re = /src="\//gi; 
+        var subst = 'src="'+base+'/'; 
+        html = html + images[i].outerHTML.replace(re, subst)
       }
     }
-
-    function getImages(base, got, html) {
-      var images = [].slice.call(got)
-      if (images.length) {
-        html = ""
-        var output = []
-        for (var i = 0; i < images.length; i++) {
-          var re = /src="\//gi; 
-          var subst = 'src="'+base+'/'; 
-          html = html + images[i].outerHTML.replace(re, subst)
-        }
+    var re = /<img[^>]+src="([^">]+)"/gi 
+    while ((m = re.exec(html)) !== null) {
+      if (m.index === re.lastIndex) {
+        re.lastIndex++;
       }
-      var re = /<img[^>]+src="([^">]+)"/gi 
-      while ((m = re.exec(html)) !== null) {
-        if (m.index === re.lastIndex) {
-          re.lastIndex++;
-        }
-        loadImage(m[1])
-      }
+      loadImage(m[1])
     }
-    // function getDescription(doc) {
-      // var html = doc.children[0]
-      // var head = html.childNodes.item('head')
-      // var meta = [].slice.call(head.childNodes)
-      // for (var i = 0; i < meta.length; i++) {
-        // 
-        // if (meta[i].attributes) {
-          // for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-            // if (meta[i].attributes[attr].textContent) {
-// 
-            // }
+  }
+  // function getDescription(doc) {
+    // var html = doc.children[0]
+    // var head = html.childNodes.item('head')
+    // var meta = [].slice.call(head.childNodes)
+    // for (var i = 0; i < meta.length; i++) {
+      // 
+      // if (meta[i].attributes) {
+        // for (var attr = 0; attr < meta[i].attributes.length; attr++) {
+          // if (meta[i].attributes[attr].textContent) {
+//
           // }
         // }
       // }
-      // return 
     // }
-    function getFavicon (base, doc) {
-      var html = doc.children[0]
-      var head = html.childNodes.item('head')
-      var meta = [].slice.call(head.childNodes)
-      for (var i = 0; i < meta.length; i++) {
-        console.log("next 1", meta[i].nodeName)
-        if (meta[i].attributes) {
-          for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-            
-            if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png")) {
-              if (meta[i].attributes[attr].textContent.startsWith("//")) {
-                loadImage("https:"+meta[i].attributes[attr].textContent)
-                loadImage("http:"+meta[i].attributes[attr].textContent)
-              } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
-                loadImage(base + meta[i].attributes[attr].textContent)
-              } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
-                loadImage(meta[i].attributes[attr].textContent)
-              } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
-                loadImage(meta[i].attributes[attr].textContent)
-              } else {
-                var arrayUrl = url.split('/')
-                arrayUrl.pop()
-                loadImage(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
-              }
+    // return 
+  // }
+  function getFavicon (base, doc) {
+    var html = doc.children[0]
+    var head = html.childNodes.item('head')
+    var meta = [].slice.call(head.childNodes)
+    for (var i = 0; i < meta.length; i++) {
+      console.log("next 1", meta[i].nodeName)
+      if (meta[i].attributes) {
+        for (var attr = 0; attr < meta[i].attributes.length; attr++) {
+          
+          if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png")) {
+            if (meta[i].attributes[attr].textContent.startsWith("//")) {
+              loadImage("https:"+meta[i].attributes[attr].textContent)
+              loadImage("http:"+meta[i].attributes[attr].textContent)
+            } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
+              loadImage(base + meta[i].attributes[attr].textContent)
+            } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
+              loadImage(meta[i].attributes[attr].textContent)
+            } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
+              loadImage(meta[i].attributes[attr].textContent)
+            } else {
+              loadImage(base + "/" + meta[i].attributes[attr].textContent)
             }
           }
         }
       }
     }
-    
-
+  }
+  getCurrentTabUrl(function(url) {
     getHTML(url, getDoc)
-    
   })
   function loadImage(theUrl) {
       var img = new Image()
+      var fav = document.getElementById("fav");
       var canvas = document.getElementById("canvas");
       var imageAsUrl = document.getElementById("imageAsUrl")
       var gotIt = false
+      var gotFav = false
 
       img.onload = function () {
         if (!gotIt && img.width > 120) {
@@ -163,6 +166,13 @@ document.addEventListener('DOMContentLoaded', function() {
           octx.drawImage(img, 0, 0, canvas.width, canvas.height)
           addMe.image = canvas.toDataURL("image/jpeg")
 
+        }
+        if (!gotFav) {
+          gotFav = true
+          fav.height = fav.width * (img.height / img.width)
+          var octx = fav.getContext('2d')
+          octx.drawImage(img, 0, 0, fav.width, fav.height)
+          addMe.fav = canvas.toDataURL("image/jpeg")
         }
       }
       if (!gotIt) {
