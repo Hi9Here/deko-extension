@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
   function doStuffWithDom(data) {
     if (data) {
       getDoc(data.html, data.url)
+      var titleH2 = document.getElementById("title")
+      titleH2.innerText = data.title
+      addMe.title = data.title
     }
   }
   function getCurrentTabUrl(callback) {
@@ -73,16 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
      
     loadDocument = parser.parseFromString(html, "text/html")
     // getImages(getBase(url), loadDocument.images, html)
-    if (base) {
-      getFavicon(base, loadDocument)
-    }
-    if (!base) {
-      var titleH2 = document.getElementById("title")
-      titleH2.innerText = loadDocument.title
-      addMe.title = loadDocument.title
-      // var descP = document.getElementById("desc")
-      addMe.data = "Getting Description"// "getDescription(loadDocument)"
-    }
+    getFavicon(base, loadDocument)
+
+    // var descP = document.getElementById("desc")
+    addMe.data = "Getting Description"// "getDescription(loadDocument)"
   }
   function getImages(base, got, html) {
     var images = [].slice.call(got)
