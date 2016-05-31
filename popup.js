@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById("canvas");
     var imageAsUrl = document.getElementById("imageAsUrl")
     var gotFav = false
-
+    img.src = theUrl
     img.onload = function () {
       if (!gotFav && img.width < 120 || theUrl.endsWith(".ico")) {
         gotFav = true
@@ -171,9 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    if (!gotIt) {
-      img.src = theUrl
-    }
   }
   function loadImage(theUrl) {
     var img = new Image()
@@ -181,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById("canvas");
     var imageAsUrl = document.getElementById("imageAsUrl")
     var gotIt = false
+    img.src = theUrl
 
     img.onload = function () {
       if (!gotIt && img.width > 120 && !theUrl.endsWith(".ico")) {
