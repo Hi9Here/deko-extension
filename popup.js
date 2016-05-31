@@ -2,7 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   var addMe = {}
-
+  var gotFav = false
+  var gotIt = false
+  
   function doStuffWithDom(data) {
     if (data) {
       getDoc(data.html, data.url)
@@ -87,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
       html = ""
       var output = []
       var gotImages = 0
-      for (var i = 0; i < images.length || gotImages > 5; i++) {
-        if (images[i].width > 130) {
+      for (var i = 0; i < images.length || (gotImages > 5 && images.length > 9); i++) {
+        if (images[i].width > 130 || images.length < 10) {
           html = html + images[i].outerHTML
           gotImages++
         }
@@ -134,37 +136,22 @@ document.addEventListener('DOMContentLoaded', function() {
   })
   function loadFav(theUrl) {
     var img = new Image()
-    var fav = document.getElementById("fav");
-    var canvas = document.getElementById("canvas");
-    var imageAsUrl = document.getElementById("imageAsUrl")
-    var gotFav = false
+    var fav = document.getElementById("fav")
+    
     img.src = theUrl
     img.onload = function () {
-      if (!gotFav && img.width < 120 || theUrl.endsWith(".ico")) {
+      if (!gotFav) {
         gotFav = true
         fav.height = fav.width = 32
         var octx = fav.getContext('2d')
         octx.drawImage(img, 0, 0, fav.width, fav.height)
         addMe.fav = fav.toDataURL("image/jpeg")
-      } else {
-        canvas.height = canvas.width * (img.height / img.width)
-        var octx = canvas.getContext('2d')
-        octx.drawImage(img, 0, 0, fav.width, fav.height)
-        if (!Array.isArray(addMe.alt)) {
-          addMe.alt = []
-        }
-        if (addMe.alt.indexOf(""+canvas.toDataURL("image/jpeg")) === -1) {
-          addMe.alt.push(""+canvas.toDataURL("image/jpeg"))
-        }
       }
     }
   }
   function loadImage(theUrl) {
     var img = new Image()
-    var fav = document.getElementById("fav");
-    var canvas = document.getElementById("canvas");
-    var imageAsUrl = document.getElementById("imageAsUrl")
-    var gotIt = false
+    var canvas = document.getElementById("canvas")
     img.src = theUrl
 
     img.onload = function () {
