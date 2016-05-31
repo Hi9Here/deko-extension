@@ -107,8 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
     for (var i = 0; i < meta.length; i++) {     
       if (meta[i].attributes) {
         for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-          if (meta[i].attributes[attr].textContent) {
-debugger
+          
+          if (meta[i].attributes[attr].ownerElement.name === "description" || meta[i].attributes[attr].textContent) {
+debugger    
+            addMe.description = meta[i].attributes[attr].textContent
           }
         }
       }
@@ -164,6 +166,12 @@ debugger
         var octx = canvas.getContext('2d')
         octx.drawImage(img, 0, 0, canvas.width, canvas.height)
         addMe.image = canvas.toDataURL("image/jpeg")
+        if (!gotFav) {
+          fav.height = fav.width * (img.height / img.width)
+          var octx = fav.getContext('2d')
+          octx.drawImage(img, 0, 0, fav.width, fav.height)
+          addMe.fav = canvas.toDataURL("image/jpeg")
+        }
       } else if (!gotFav && img.width < 120) {
         gotFav = true
         fav.height = fav.width * (img.height / img.width)
