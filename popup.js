@@ -66,17 +66,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var re = /(https?:\/\/[^\/]*)/gi
     var res = theUrl.match(re)
     if (Array.isArray(res) && res.length > 0) {
-      debugger
       return res[0]
     }
   }
   var loadDocument
-  function getDoc(html, base) {
+  function getDoc(html, url) {
     parser = new DOMParser()
      
     loadDocument = parser.parseFromString(html, "text/html")
-    // getImages(getBase(url), loadDocument.images, html)
-    getFavicon(base, loadDocument)
+    getImages(getBase(url), loadDocument.images, html)
+    getFavicon(url, loadDocument)
 
     // var descP = document.getElementById("desc")
     addMe.data = getDescription(loadDocument)
@@ -101,21 +100,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   function getDescription(doc) {
-    var html = doc.children[0]
-    var head = html.childNodes.item('head')
-    var meta = [].slice.call(head.childNodes)
-    for (var i = 0; i < meta.length; i++) {     
-      if (meta[i].attributes) {
-        for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-          
-          if (meta[i].attributes[attr].ownerElement.name === "description" || meta[i].attributes[attr].textContent) {
-debugger    
-            addMe.description = meta[i].attributes[attr].textContent
-          }
-        }
+    var meta = doc.getElementsByTagName('meta'); 
+    for (var i = 0; i < meta.length; i++) {
+      if (meta[i].getAttribute("property") == "description") {
+        return metas[i].getAttribute("content")
       }
     }
-    return 
+    return ""
   }
   function getFavicon (url, doc) {
     var html = doc.children[0]
@@ -130,18 +121,21 @@ debugger
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
             if (meta[i].attributes[attr].textContent.startsWith("//")) {
-              loadImage("https:"+meta[i].attributes[attr].textContent)
-              loadImage("http:"+meta[i].attributes[attr].textContent)
+              if (url.startsWith("https://")) {
+                loadFav("https:"+meta[i].attributes[attr].textContent)
+              } else {
+                loadFav("http:"+meta[i].attributes[attr].textContent)
+              }
             } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
-              loadImage(getBase(url) + meta[i].attributes[attr].textContent)
+              loadFav(getBase(url) + meta[i].attributes[attr].textContent)
             } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
-              loadImage(meta[i].attributes[attr].textContent)
+              loadFav(meta[i].attributes[attr].textContent)
             } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
-              loadImage(meta[i].attributes[attr].textContent)
+              loadFav(meta[i].attributes[attr].textContent)
             } else {
               var arrayUrl = url.split('/')
               arrayUrl.pop()
-              loadImage(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
+              loadFav(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
             }
           }
         }
@@ -151,6 +145,36 @@ debugger
   getCurrentTabUrl(function(url) {
     getHTML(url, getDoc)
   })
+  function loadFav(theUrl) {
+    var img = new Image()
+    var fav = document.getElementById("fav");
+    var canvas = document.getElementById("canvas");
+    var imageAsUrl = document.getElementById("imageAsUrl")
+    var gotFav = false
+
+    img.onload = function () {
+      if (!gotFav && img.width < 120 || theUrl.endsWith(".ico")) {
+        gotFav = true
+        fav.height = fav.width = 32
+        var octx = fav.getContext('2d')
+        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        addMe.fav = fav.toDataURL("image/jpeg")
+      } else {
+        canvas.height = canvas.width * (img.height / img.width)
+        var octx = canvas.getContext('2d')
+        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        if (!Array.isArray(addMe.alt)) {
+          addMe.alt = []
+        }
+        if (addMe.alt.indexOf(""+canvas.toDataURL("image/jpeg")) === -1) {
+          addMe.alt.push(""+canvas.toDataURL("image/jpeg"))
+        }
+      }
+    }
+    if (!gotIt) {
+      img.src = theUrl
+    }
+  }
   function loadImage(theUrl) {
     var img = new Image()
     var fav = document.getElementById("fav");
@@ -160,32 +184,34 @@ debugger
     var gotFav = false
 
     img.onload = function () {
-      if (!gotIt && img.width > 120) {
+      if (!gotIt && img.width > 120 && !theUrl.endsWith(".ico")) {
         gotIt = true
         canvas.height = canvas.width * (img.height / img.width)
         var octx = canvas.getContext('2d')
         octx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        addMe.image = canvas.toDataURL("image/jpeg")
+        addMe.image = ""+canvas.toDataURL("image/jpeg")
         if (!gotFav) {
           fav.height = fav.width * (img.height / img.width)
-          var octx = fav.getContext('2d')
-          octx.drawImage(img, 0, 0, fav.width, fav.height)
-          addMe.fav = canvas.toDataURL("image/jpeg")
+          var octxfav = fav.getContext('2d')
+          octxfav.drawImage(img, 0, 0, fav.width, fav.height)
+          addMe.fav = ""+fav.toDataURL("image/jpeg")
         }
-      } else if (!gotFav && img.width < 120) {
+      } else if (!gotFav && img.width < 120 || theUrl.endsWith(".ico")) {
         gotFav = true
-        fav.height = fav.width * (img.height / img.width)
+        fav.height = fav.width = 32
         var octx = fav.getContext('2d')
         octx.drawImage(img, 0, 0, fav.width, fav.height)
-        addMe.fav = canvas.toDataURL("image/jpeg")
+        addMe.fav = fav.toDataURL("image/jpeg")
       } else {
-        fav.height = fav.width * (img.height / img.width)
-        var octx = fav.getContext('2d')
+        canvas.height = canvas.width * (img.height / img.width)
+        var octx = canvas.getContext('2d')
         octx.drawImage(img, 0, 0, fav.width, fav.height)
         if (!Array.isArray(addMe.alt)) {
           addMe.alt = []
         }
-        addMe.alt.push(canvas.toDataURL("image/jpeg"))
+        if (addMe.alt.indexOf(""+canvas.toDataURL("image/jpeg")) === -1) {
+          addMe.alt.push(""+canvas.toDataURL("image/jpeg"))
+        }
       }
     }
     if (!gotIt) {
@@ -193,14 +219,10 @@ debugger
     }
   }
   var imageUrl = document.getElementById("imageUrl")
-  
-  imageUrl.addEventListener("change", function(){
-    loadImage(imageUrl.value)
-  })
 
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
-    console.log(JSON.stringify(addMe))
+    console.log("https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe)))
     console.log(addMe)
   })
 })
