@@ -80,15 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // var descP = document.getElementById("desc")
     addMe.data = getDescription(loadDocument)
   }
-  function getImages(base, got, html) {
+  function getImages(url, got, html) {
     var images = [].slice.call(got)
     if (images.length) {
       html = ""
       var output = []
       for (var i = 0; i < images.length; i++) {
-        var re = /src="\//gi; 
-        var subst = 'src="'+base+'/'; 
-        html = html + images[i].outerHTML.replace(re, subst)
+        html = html + images[i].outerHTML
       }
     }
     var re = /<img[^>]+src="([^">]+)"/gi 
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (m.index === re.lastIndex) {
         re.lastIndex++;
       }
-      loadImage(m[1])
+      loadImage(getUrl(m[1], url))
     }
   }
   function getDescription(doc) {
@@ -120,23 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png") 
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
-            if (meta[i].attributes[attr].textContent.startsWith("//")) {
-              if (url.startsWith("https://")) {
-                loadFav("https:"+meta[i].attributes[attr].textContent)
-              } else {
-                loadFav("http:"+meta[i].attributes[attr].textContent)
-              }
-            } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
-              loadFav(getBase(url) + meta[i].attributes[attr].textContent)
-            } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
-              loadFav(meta[i].attributes[attr].textContent)
-            } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
-              loadFav(meta[i].attributes[attr].textContent)
-            } else {
-              var arrayUrl = url.split('/')
-              arrayUrl.pop()
-              loadFav(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
-            }
+            loadFav(getUrl(meta[i].attributes[attr].textContent, url))
           }
         }
       }
@@ -207,4 +189,23 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe)))
     console.log(addMe)
   })
+  function getUrl(url, theurlOfImage) {
+    if (theurlOfImage.startsWith("//")) {
+      if (url.startsWith("https://")) {
+        return "https:"+theurlOfImage
+      } else {
+        return "http:"+theurlOfImage
+      }
+    } else if (theurlOfImage.startsWith("/")) {
+      return getBase(url) + theurlOfImage
+    } else if (theurlOfImage.startsWith("http://")) {
+      return theurlOfImage
+    } else if (theurlOfImage.startsWith("https://")) {
+      return theurlOfImage
+    } else {
+      var arrayUrl = url.split('/')
+      arrayUrl.pop()
+      return arrayUrl.join('/') + "/" + theurlOfImage
+    }
+  }
 })
