@@ -181,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById("canvas");
     var imageAsUrl = document.getElementById("imageAsUrl")
     var gotIt = false
-    var gotFav = false
 
     img.onload = function () {
       if (!gotIt && img.width > 120 && !theUrl.endsWith(".ico")) {
@@ -190,18 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var octx = canvas.getContext('2d')
         octx.drawImage(img, 0, 0, canvas.width, canvas.height)
         addMe.image = ""+canvas.toDataURL("image/jpeg")
-        if (!gotFav) {
-          fav.height = fav.width * (img.height / img.width)
-          var octxfav = fav.getContext('2d')
-          octxfav.drawImage(img, 0, 0, fav.width, fav.height)
-          addMe.fav = ""+fav.toDataURL("image/jpeg")
-        }
-      } else if (!gotFav && img.width < 120 || theUrl.endsWith(".ico")) {
-        gotFav = true
-        fav.height = fav.width = 32
-        var octx = fav.getContext('2d')
-        octx.drawImage(img, 0, 0, fav.width, fav.height)
-        addMe.fav = fav.toDataURL("image/jpeg")
       } else {
         canvas.height = canvas.width * (img.height / img.width)
         var octx = canvas.getContext('2d')
@@ -213,9 +200,6 @@ document.addEventListener('DOMContentLoaded', function() {
           addMe.alt.push(""+canvas.toDataURL("image/jpeg"))
         }
       }
-    }
-    if (!gotIt) {
-      img.src = theUrl
     }
   }
   var imageUrl = document.getElementById("imageUrl")
