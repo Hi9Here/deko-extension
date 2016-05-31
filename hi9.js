@@ -45,8 +45,8 @@ chrome.idle.onStateChanged.addListener(function (v) {
         del_ids.push(element.id)
       }
       if ((index+1) === array.length) {
-        var myFirebaseRef = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/log/")
-        myFirebaseRef.push({'time': getTotalTime(onStateChanged), 'sites': getSites(onUpdated, onActivated), 'id': userInfo.id, 'end': n, 'start': start}, deleteOld())
+        // var myFirebaseRef = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/log/")
+        // myFirebaseRef.push({'time': getTotalTime(onStateChanged), 'sites': getSites(onUpdated, onActivated), 'id': userInfo.id, 'end': n, 'start': start}, deleteOld())
         // myFirebaseRef = null // clear up
       }
       function deleteOld() {
@@ -190,31 +190,6 @@ chrome.identity.getProfileUserInfo(function (user) {
     console.log("err",err)
   })
 
-  var firebaseWhiteList = new Firebase('https://hi9site.firebaseio.com/users/google:'+userInfo.id+"/white-list/")
-  // Basic usage of .once() to read the data located at firebaseRef.
-  firebaseWhiteList.once('value', function(dataSnapshot) {
-    var whiteList = dataSnapshot.val()
-    urlsToList = []
-    Object.keys(whiteList).forEach(function(key) {
-      urlsToList.push(whiteList[key].link)
-    })
-    db.get("whiteList").then(function(doc) {
-      return db.put({
-         _id: "whiteList",
-         _rev: doc._rev,
-         whiteList: whiteList
-      });
-    }).then(function(response) {
-      console.log("response",response)
-      // handle response
-    }).catch(function (err) {
-      console.log("err",err)
-      db.put({
-         _id: "whiteList",
-         whiteList: whiteList
-      })
-    })
-  })
 })
 
 // A function to use as callback

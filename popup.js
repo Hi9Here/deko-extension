@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     getFavicon(base, loadDocument)
 
     // var descP = document.getElementById("desc")
-    addMe.data = "Getting Description"// "getDescription(loadDocument)"
+    addMe.data = getDescription(loadDocument)
   }
   function getImages(base, got, html) {
     var images = [].slice.call(got)
@@ -100,23 +100,22 @@ document.addEventListener('DOMContentLoaded', function() {
       loadImage(m[1])
     }
   }
-  // function getDescription(doc) {
-    // var html = doc.children[0]
-    // var head = html.childNodes.item('head')
-    // var meta = [].slice.call(head.childNodes)
-    // for (var i = 0; i < meta.length; i++) {
-      // 
-      // if (meta[i].attributes) {
-        // for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-          // if (meta[i].attributes[attr].textContent) {
-//
-          // }
-        // }
-      // }
-    // }
-    // return 
-  // }
-  function getFavicon (base, doc) {
+  function getDescription(doc) {
+    var html = doc.children[0]
+    var head = html.childNodes.item('head')
+    var meta = [].slice.call(head.childNodes)
+    for (var i = 0; i < meta.length; i++) {     
+      if (meta[i].attributes) {
+        for (var attr = 0; attr < meta[i].attributes.length; attr++) {
+          if (meta[i].attributes[attr].textContent) {
+debugger
+          }
+        }
+      }
+    }
+    return 
+  }
+  function getFavicon (url, doc) {
     var html = doc.children[0]
     var head = html.childNodes.item('head')
     var meta = [].slice.call(head.childNodes)
@@ -132,13 +131,15 @@ document.addEventListener('DOMContentLoaded', function() {
               loadImage("https:"+meta[i].attributes[attr].textContent)
               loadImage("http:"+meta[i].attributes[attr].textContent)
             } else if (meta[i].attributes[attr].textContent.startsWith("/")) {
-              loadImage(base + meta[i].attributes[attr].textContent)
+              loadImage(getBase(url) + meta[i].attributes[attr].textContent)
             } else if (meta[i].attributes[attr].textContent.startsWith("http://")) {
               loadImage(meta[i].attributes[attr].textContent)
             } else if (meta[i].attributes[attr].textContent.startsWith("https://")) {
               loadImage(meta[i].attributes[attr].textContent)
             } else {
-              loadImage(base + "/" + meta[i].attributes[attr].textContent)
+              var arrayUrl = url.split('/')
+              arrayUrl.pop()
+              loadImage(arrayUrl.join('/') + "/" + meta[i].attributes[attr].textContent)
             }
           }
         }
@@ -160,18 +161,23 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!gotIt && img.width > 120) {
         gotIt = true
         canvas.height = canvas.width * (img.height / img.width)
- 
         var octx = canvas.getContext('2d')
         octx.drawImage(img, 0, 0, canvas.width, canvas.height)
         addMe.image = canvas.toDataURL("image/jpeg")
-
-      }
-      if (!gotFav) {
+      } else if (!gotFav && img.width < 120) {
         gotFav = true
         fav.height = fav.width * (img.height / img.width)
         var octx = fav.getContext('2d')
         octx.drawImage(img, 0, 0, fav.width, fav.height)
         addMe.fav = canvas.toDataURL("image/jpeg")
+      } else {
+        fav.height = fav.width * (img.height / img.width)
+        var octx = fav.getContext('2d')
+        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        if (!Array.isArray(addMe.alt)) {
+          addMe.alt = []
+        }
+        addMe.alt.push(canvas.toDataURL("image/jpeg"))
       }
     }
     if (!gotIt) {
@@ -186,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
-    var firebaseIo = new Firebase('https://open-elements.firebaseio.com/all/marcus6666')
-    firebaseIo.push(addMe) 
+    console.log(JSON.stringify(addMe))
   })
 })
