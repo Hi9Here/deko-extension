@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', function() {
   var addMe = {}
   var gotFav = false
@@ -178,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
-    console.log("https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe)))
+    window.location.href = "https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe))
     console.log(addMe)
   })
   function getUrl(theurlOfImage, url) {
