@@ -3,6 +3,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.text === 'report_back') {
     // Call the specified callback, passing
     // the web-page's DOM content as argument
-    sendResponse({html: document.all[0].outerHTML, url: msg.url, title: document.title})
+    sendResponse({html: document.all[0].outerHTML, url: msg.url, title: document.title })
   }
 });

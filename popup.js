@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title
+      
     }
   }
   function getCurrentTabUrl(callback) {
@@ -74,19 +75,23 @@ document.addEventListener('DOMContentLoaded', function() {
     parser = new DOMParser()
      
     loadDocument = parser.parseFromString(html, "text/html")
-    getImages(getBase(url), loadDocument.images, html)
+    getImages(url, loadDocument.images, html)
     getFavicon(url, loadDocument)
 
     // var descP = document.getElementById("desc")
-    addMe.data = getDescription(loadDocument)
+    addMe.desc = getDescription(loadDocument)
   }
   function getImages(url, got, html) {
     var images = [].slice.call(got)
     if (images.length) {
       html = ""
       var output = []
-      for (var i = 0; i < images.length; i++) {
-        html = html + images[i].outerHTML
+      var gotImages = 0
+      for (var i = 0; i < images.length || gotImages > 5; i++) {
+        if (images[i].width > 130) {
+          html = html + images[i].outerHTML
+          gotImages++
+        }
       }
     }
     var re = /<img[^>]+src="([^">]+)"/gi 
@@ -101,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var meta = doc.getElementsByTagName('meta'); 
     for (var i = 0; i < meta.length; i++) {
       if (meta[i].getAttribute("property") == "description") {
-        return metas[i].getAttribute("content")
+        return meta[i].getAttribute("content")
       }
     }
     return ""
@@ -189,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe)))
     console.log(addMe)
   })
-  function getUrl(url, theurlOfImage) {
+  function getUrl(theurlOfImage, url) {
     if (theurlOfImage.startsWith("//")) {
       if (url.startsWith("https://")) {
         return "https:"+theurlOfImage
