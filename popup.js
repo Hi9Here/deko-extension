@@ -201,5 +201,6 @@ debugger
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
     console.log(JSON.stringify(addMe))
+    console.log(addMe)
   })
 })
