@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title
-      
     }
   }
   function getCurrentTabUrl(callback) {
@@ -84,22 +83,23 @@ document.addEventListener('DOMContentLoaded', function() {
   function getImages(url, got, html) {
     var images = [].slice.call(got)
     if (images.length) {
-      html = ""
       var output = []
       var gotImages = 0
       for (var i = 0; i < images.length || (gotImages > 5 && images.length > 9); i++) {
-        if (images[i].width > 130 || images.length < 10) {
-          html = html + images[i].outerHTML
+        if (images[i] !== undefined)
+        if (images[i].src && ((images[i].width > 130 || images[i].width === 0) || images.length < 10))  {
+          loadImage(getUrl(images[i].src, url))      
           gotImages++
         }
       }
-    }
-    var re = /<img[^>]+src="([^">]+)"/gi 
-    while ((m = re.exec(html)) !== null) {
-      if (m.index === re.lastIndex) {
-        re.lastIndex++;
+    } else {
+      var re = /<img[^>]+src="([^">]+)"/gmi 
+      while ((m = re.exec(html)) !== null) {
+        if (m.index === re.lastIndex) {
+          re.lastIndex++
+        }
+        loadImage(getUrl(m[1], url))
       }
-      loadImage(getUrl(m[1], url))
     }
   }
   function getDescription(doc) {
@@ -142,6 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
         gotFav = true
         fav.height = fav.width = 32
         var octx = fav.getContext('2d')
+        octx.fillStyle = "#FFF"
+        octx.fillRect(0, 0, fav.width, fav.height)
         octx.drawImage(img, 0, 0, fav.width, fav.height)
         addMe.fav = fav.toDataURL("image/jpeg")
       }
@@ -157,12 +159,16 @@ document.addEventListener('DOMContentLoaded', function() {
         gotIt = true
         canvas.height = canvas.width * (img.height / img.width)
         var octx = canvas.getContext('2d')
+        octx.fillStyle = "#FFF"
+        octx.fillRect(0, 0, canvas.width, canvas.height)
         octx.drawImage(img, 0, 0, canvas.width, canvas.height)
         addMe.image = ""+canvas.toDataURL("image/jpeg")
       } else {
         canvas.height = canvas.width * (img.height / img.width)
         var octx = canvas.getContext('2d')
-        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        octx.fillStyle = "#FFF"
+        octx.fillRect(0, 0, canvas.width, canvas.height)
+        octx.drawImage(img, 0, 0, canvas.width, canvas.height)
         if (!Array.isArray(addMe.alt)) {
           addMe.alt = []
         }
@@ -176,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var myBtn = document.getElementById("myBtn")
   myBtn.addEventListener("click", function(){
-    window.location.href = "https://auth-c5e05.firebaseapp.com/add/#" + encodeURIComponent(JSON.stringify(addMe))
+    chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
     console.log(addMe)
   })
   function getUrl(theurlOfImage, url) {
