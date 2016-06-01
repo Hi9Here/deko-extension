@@ -10,9 +10,6 @@
         "default_icon": "icon.png",
         "default_popup": "popup.html"
     },
-    "background": {
-        "page":"hi9.html"
-    },
     "content_scripts": [
       {
         "matches": ["https://hi9.uk/*"],

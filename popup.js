@@ -27,41 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
     })
   }
 
-  function getHTML(link, callback) {
-    function getBase(theUrl) {
-      var re = /(https?:\/\/[^\/]*)/gi
-      var res = theUrl.match(re)
-      if (Array.isArray(res) && res.length > 0) {
-        return res[0]
-      }
-    }
-    function makeHttpObject() {
-      try {return new XMLHttpRequest()}
-      catch (error) {}
-      try {return new ActiveXObject("Msxml2.XMLHTTP")}
-      catch (error) {}
-      try {return new ActiveXObject("Microsoft.XMLHTTP")}
-      catch (error) {}
-  
-      throw new Error("Could not create HTTP request object.")
-    }
-    var request = makeHttpObject();
-    request.open("GET", link, true);
-    request.send(null);
-    request.onreadystatechange = function() {
-      if (request.readyState === 3) {
-        callback(request.responseText, link)
-      }
-    }
-    var requestB = makeHttpObject();
-    requestB.open("GET", getBase(link), true);
-    requestB.send(null);
-    requestB.onreadystatechange = function() {
-      if (requestB.readyState === 3) {
-        callback(requestB.responseText, getBase(link))
-      }
-    }
-  }
   function getBase(theUrl) {
     var re = /(https?:\/\/[^\/]*)/gi
     var res = theUrl.match(re)
@@ -86,9 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
       var output = []
       var gotImages = 0
       for (var i = 0; i < images.length || (gotImages > 5 && images.length > 9); i++) {
-        if (images[i] !== undefined)
-        if (images[i].src && ((images[i].width > 130 || images[i].width === 0) || images.length < 10))  {
-          loadImage(getUrl(images[i].src, url))      
+        if (images[i] !== undefined && images[i].src && ((images[i].width > 130 || images[i].width === 0) || images.length < 10))  {
+          loadImage(getUrl(images[i].src, url))
           gotImages++
         }
       }
@@ -116,10 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var head = html.childNodes.item('head')
     var meta = [].slice.call(head.childNodes)
     for (var i = 0; i < meta.length; i++) {
-      console.log("next 1", meta[i].nodeName)
       if (meta[i].attributes) {
         for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-          
           if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png") 
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
            || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
@@ -128,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
+    loadFav(getBase(url) + "/favicon.ico")
   }
   getCurrentTabUrl(function(url) {
     getHTML(url, getDoc)

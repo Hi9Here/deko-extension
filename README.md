@@ -1,6 +1,4 @@
 # hi9-extension
-Opens hi9.uk as a new tab and reports usage
-
-TODOs
-Add user input and reports for users
-eg if url = github = working
+Lets you add cards to hi9
+and
+Opens hi9.uk as a new tab
