@@ -2,30 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var addMe = {}
   var gotFav = false
   var gotIt = false
-  
-  function doStuffWithDom(data) {
-    if (data) {
-      getDoc(data.html, data.url)
-      var titleH2 = document.getElementById("title")
-      titleH2.innerText = data.title
-      addMe.title = data.title
-    }
-  }
-  function getCurrentTabUrl(callback) {
-    var queryInfo = {
-      active: true,
-      currentWindow: true
-    }
-    chrome.tabs.query(queryInfo, function(tabs) {
-      var tab = tabs[0]
-      var url = tab.url
-      console.assert(typeof url == 'string', 'tab.url should be a string')
-
-      callback(url)
-      addMe.url = url
-      chrome.tabs.sendMessage(tab.id, {text: 'report_back', url: url}, doStuffWithDom)
-    })
-  }
+  var loadDocument
+  var imageUrl = document.getElementById("imageUrl")
 
   function getBase(theUrl) {
     var re = /(https?:\/\/[^\/]*)/gi
@@ -34,17 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return res[0]
     }
   }
-  var loadDocument
-  function getDoc(html, url) {
-    parser = new DOMParser()
-     
-    loadDocument = parser.parseFromString(html, "text/html")
-    getImages(url, loadDocument.images, html)
-    getFavicon(url, loadDocument)
 
-    // var descP = document.getElementById("desc")
-    addMe.desc = getDescription(loadDocument)
-  }
   function getImages(url, got, html) {
     var images = [].slice.call(got)
     if (images.length) {
@@ -66,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
+
   function getDescription(doc) {
     var meta = doc.getElementsByTagName('meta'); 
     for (var i = 0; i < meta.length; i++) {
@@ -74,6 +43,47 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     return ""
+  }
+
+  
+
+  function loadFav(theUrl) {
+    var img = new Image()
+    var fav = document.getElementById("fav")
+    
+    img.src = theUrl
+    img.onload = function () {
+      if (!gotFav) {
+        gotFav = true
+        fav.height = fav.width = 32
+        var octx = fav.getContext('2d')
+        octx.fillStyle = "#FFF"
+        octx.fillRect(0, 0, fav.width, fav.height)
+        octx.drawImage(img, 0, 0, fav.width, fav.height)
+        addMe.fav = fav.toDataURL("image/jpeg")
+      }
+    }
+  }
+
+
+  function getUrl(theurlOfImage, url) {
+    if (theurlOfImage.startsWith("//")) {
+      if (url.startsWith("https://")) {
+        return "https:"+theurlOfImage
+      } else {
+        return "http:"+theurlOfImage
+      }
+    } else if (theurlOfImage.startsWith("/")) {
+      return getBase(url) + theurlOfImage
+    } else if (theurlOfImage.startsWith("http://")) {
+      return theurlOfImage
+    } else if (theurlOfImage.startsWith("https://")) {
+      return theurlOfImage
+    } else {
+      var arrayUrl = url.split('/')
+      arrayUrl.pop()
+      return arrayUrl.join('/') + "/" + theurlOfImage
+    }
   }
   function getFavicon (url, doc) {
     var html = doc.children[0]
@@ -91,26 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     loadFav(getBase(url) + "/favicon.ico")
-  }
-  getCurrentTabUrl(function(url) {
-    getHTML(url, getDoc)
-  })
-  function loadFav(theUrl) {
-    var img = new Image()
-    var fav = document.getElementById("fav")
-    
-    img.src = theUrl
-    img.onload = function () {
-      if (!gotFav) {
-        gotFav = true
-        fav.height = fav.width = 32
-        var octx = fav.getContext('2d')
-        octx.fillStyle = "#FFF"
-        octx.fillRect(0, 0, fav.width, fav.height)
-        octx.drawImage(img, 0, 0, fav.width, fav.height)
-        addMe.fav = fav.toDataURL("image/jpeg")
-      }
-    }
   }
   function loadImage(theUrl) {
     var img = new Image()
@@ -141,30 +131,39 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-  var imageUrl = document.getElementById("imageUrl")
+  function getDoc(html, url) {
+    parser = new DOMParser()
+     
+    loadDocument = parser.parseFromString(html, "text/html")
+    getImages(url, loadDocument.images, html)
+    getFavicon(url, loadDocument)
 
-  var myBtn = document.getElementById("myBtn")
-  myBtn.addEventListener("click", function(){
-    chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
-    console.log(addMe)
-  })
-  function getUrl(theurlOfImage, url) {
-    if (theurlOfImage.startsWith("//")) {
-      if (url.startsWith("https://")) {
-        return "https:"+theurlOfImage
-      } else {
-        return "http:"+theurlOfImage
-      }
-    } else if (theurlOfImage.startsWith("/")) {
-      return getBase(url) + theurlOfImage
-    } else if (theurlOfImage.startsWith("http://")) {
-      return theurlOfImage
-    } else if (theurlOfImage.startsWith("https://")) {
-      return theurlOfImage
-    } else {
-      var arrayUrl = url.split('/')
-      arrayUrl.pop()
-      return arrayUrl.join('/') + "/" + theurlOfImage
+    // var descP = document.getElementById("desc")
+    addMe.desc = getDescription(loadDocument)
+    setTimeout(function(){
+      chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
+    }, 2000)
+  }
+  function doStuffWithDom(data) {
+    if (data) {
+      getDoc(data.html, data.url)
+      var titleH2 = document.getElementById("title")
+      titleH2.innerText = data.title
+      addMe.title = data.title
     }
   }
+  function getCurrentTabUrl() {
+    var queryInfo = {
+      active: true,
+      currentWindow: true
+    }
+    chrome.tabs.query(queryInfo, function(tabs) {
+      var tab = tabs[0]
+      var url = tab.url
+      console.assert(typeof url == 'string', 'tab.url should be a string')
+      addMe.url = url
+      chrome.tabs.sendMessage(tab.id, {text: 'report_back', url: url}, doStuffWithDom)
+    })
+  }
+  getCurrentTabUrl()
 })
