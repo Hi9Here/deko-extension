@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function getDescription(doc) {
-    var meta = doc.getElementsByTagName('meta'); 
+  function getDescription(meta) {
+    if (meta)
     for (var i = 0; i < meta.length; i++) {
       if (meta[i].getAttribute("property") == "description") {
         return meta[i].getAttribute("content")
@@ -85,10 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return arrayUrl.join('/') + "/" + theurlOfImage
     }
   }
-  function getFavicon (url, doc) {
-    var html = doc.children[0]
-    var head = html.childNodes.item('head')
-    var meta = [].slice.call(head.childNodes)
+  function getFavicon (url, meta) {
     for (var i = 0; i < meta.length; i++) {
       if (meta[i].attributes) {
         for (var attr = 0; attr < meta[i].attributes.length; attr++) {
@@ -131,22 +128,21 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-  function getDoc(html, url) {
+  function getDoc(images, url, meta) {
     parser = new DOMParser()
-     
-    loadDocument = parser.parseFromString(html, "text/html")
-    getImages(url, loadDocument.images, html)
-    getFavicon(url, loadDocument)
+    
+    getImages(url, images, html)
+    getFavicon(url, meta)
 
     // var descP = document.getElementById("desc")
-    addMe.desc = getDescription(loadDocument)
+    addMe.desc = getDescription(meta)
     setTimeout(function(){
       chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
-    }, 2000)
+    }, 3000)
   }
   function doStuffWithDom(data) {
     if (data) {
-      getDoc(data.html, data.url)
+      getDoc(data.images, data.url)
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title
