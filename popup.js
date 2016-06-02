@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function getImages(url, got) {
-    var images = [].slice.call(got)
     if (images.length) {
       var output = []
       var gotImages = 0
@@ -27,8 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function getDescription(meta) {
-    if (meta)
+  function getDescription(got) {
+    var meta = [].slice.call(got)
+    if (meta.length)
     for (var i = 0; i < meta.length; i++) {
       if (meta[i].getAttribute("property") == "description") {
         return meta[i].getAttribute("content")
