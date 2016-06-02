@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function getImages(url, got, html) {
+  function getImages(url, got) {
     var images = [].slice.call(got)
     if (images.length) {
       var output = []
@@ -23,14 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
           loadImage(getUrl(images[i].src, url))
           gotImages++
         }
-      }
-    } else {
-      var re = /<img[^>]+src="([^">]+)"/gmi 
-      while ((m = re.exec(html)) !== null) {
-        if (m.index === re.lastIndex) {
-          re.lastIndex++
-        }
-        loadImage(getUrl(m[1], url))
       }
     }
   }
@@ -85,14 +77,17 @@ document.addEventListener('DOMContentLoaded', function() {
       return arrayUrl.join('/') + "/" + theurlOfImage
     }
   }
-  function getFavicon (url, meta) {
-    for (var i = 0; i < meta.length; i++) {
-      if (meta[i].attributes) {
-        for (var attr = 0; attr < meta[i].attributes.length; attr++) {
-          if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png") 
-           || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
-           || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
-            loadFav(getUrl(meta[i].attributes[attr].textContent, url))
+  function getFavicon (url, Dmeta) {
+    if (Dmeta) {
+      var meta = [].slice.call(Dmeta)
+      for (var i = 0; i < meta.length; i++) {
+        if (meta[i].attributes) {
+          for (var attr = 0; attr < meta[i].attributes.length; attr++) {
+            if (meta[i].attributes[attr].textContent.split("?")[0].endsWith(".png") 
+             || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".ico")
+             || meta[i].attributes[attr].textContent.split("?")[0].endsWith(".svg")) {
+              loadFav(getUrl(meta[i].attributes[attr].textContent, url))
+            }
           }
         }
       }
@@ -131,18 +126,18 @@ document.addEventListener('DOMContentLoaded', function() {
   function getDoc(images, url, meta) {
     parser = new DOMParser()
     
-    getImages(url, images, html)
+    getImages(url, images)
     getFavicon(url, meta)
 
     // var descP = document.getElementById("desc")
     addMe.desc = getDescription(meta)
     setTimeout(function(){
-      chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
-    }, 3000)
+      // chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
+    }, 30000)
   }
   function doStuffWithDom(data) {
     if (data) {
-      getDoc(data.images, data.url)
+      getDoc(data.images, data.url, data.meta)
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title
