@@ -118,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (data) {
       getImages(data.url, data.images)
       getFavicon(data.url, data.meta, data.fav)
-      getDoc(data.images, data.url, data.meta)
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title

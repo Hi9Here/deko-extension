@@ -4,14 +4,22 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     var got = document.getElementsByTagName('meta')
     
     function getDescription(got) {
-      var meta = [].slice.call(got)
-      if (meta.length)
-      for (var i = 0; i < meta.length; i++) {
-        if (meta[i].getAttribute("property") == "description") {
-          return meta[i].getAttribute("content")
+      var metas = [].slice.call(got)
+      if (metas.length)
+      for (var i = 0; i < metas.length; i++) {
+        var desc = ""
+        if (metas[i].name) {
+          desc = ""+ metas[i].name
+        } else {
+          desc = ""+ metas[i].getAttribute("property")
+        }
+        
+        if (desc.endsWith("escription")) {
+          return metas[i].getAttribute("content")
         }
       }
-      return ""
+      var meta = document.querySelector("meta[name=\'description\']")
+      return meta.getAttribute("content") || document.title
     }
     function getImages() {
       var output = []
