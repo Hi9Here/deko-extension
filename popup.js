@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function getImages(url, got) {
+  function getImages(url, images) {
     if (images.length) {
       var output = []
       var gotImages = 0
@@ -25,19 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-
-  function getDescription(got) {
-    var meta = [].slice.call(got)
-    if (meta.length)
-    for (var i = 0; i < meta.length; i++) {
-      if (meta[i].getAttribute("property") == "description") {
-        return meta[i].getAttribute("content")
-      }
-    }
-    return ""
-  }
-
-  
 
   function loadFav(theUrl) {
     var img = new Image()
@@ -77,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return arrayUrl.join('/') + "/" + theurlOfImage
     }
   }
-  function getFavicon (url, Dmeta) {
+  function getFavicon (url, Dmeta, fav) {
     if (Dmeta) {
       var meta = [].slice.call(Dmeta)
       for (var i = 0; i < meta.length; i++) {
@@ -92,7 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    loadFav(getBase(url) + "/favicon.ico")
+    if (fav) {
+      loadFav(fav)
+    } else {
+      loadFav(getBase(url) + "/favicon.ico")
+    }
   }
   function loadImage(theUrl) {
     var img = new Image()
@@ -123,24 +114,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-  function getDoc(images, url, meta) {
-    parser = new DOMParser()
-    
-    getImages(url, images)
-    getFavicon(url, meta)
-
-    // var descP = document.getElementById("desc")
-    addMe.desc = getDescription(meta)
-    setTimeout(function(){
-      // chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
-    }, 30000)
-  }
   function doStuffWithDom(data) {
     if (data) {
+      getImages(data.url, data.images)
+      getFavicon(data.url, data.meta, data.fav)
       getDoc(data.images, data.url, data.meta)
       var titleH2 = document.getElementById("title")
       titleH2.innerText = data.title
       addMe.title = data.title
+      addMe.desc = data.description
+      setTimeout(function(){
+        chrome.tabs.create({ url: "https://auth-c5e05.firebaseapp.com/+.html#" + encodeURIComponent(JSON.stringify(addMe)) })
+      }, 3000)
     }
   }
   function getCurrentTabUrl() {
@@ -152,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var tab = tabs[0]
       var url = tab.url
       addMe.url = url
-      chrome.tabs.sendMessage(tab.id, {text: 'report_back', url: url}, doStuffWithDom)
+      chrome.tabs.sendMessage(tab.id, {text: 'report_back', url: url, fav: tab.favIconUrl, title: tab.title}, doStuffWithDom)
     })
   }
   getCurrentTabUrl()
