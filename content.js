@@ -19,7 +19,11 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         }
       }
       var meta = document.querySelector("meta[name=\'description\']")
-      return meta.getAttribute("content") || document.title
+      if (meta) {
+        return meta.getAttribute("content")
+      } else {
+        return document.title
+      }
     }
     function getImages() {
       var output = []
