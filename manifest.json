@@ -1,23 +1,26 @@
 {
-    "name": "Hi9",
-    "description": "Hi9 - Organise Everything",
-    "version": "1.0.5",
-    "incognito": "split",
-    "chrome_url_overrides": { "newtab": "redirect.html" },
-    "manifest_version": 2,
-    "permissions": ["tabs", "webRequest", "webRequestBlocking", "activeTab", "https://*/","http://*/", "bookmarks", "storage"],
-    "browser_action": {
-        "default_icon": "favicon.ico",
-        "default_popup": "popup.html"
-    },
-    "background": {
-        "page":"hi9.html",
-        "persistent": true
-    },
-    "content_scripts": [
-      {
-        "matches": ["*://*/*"],
-        "js": ["content.js"]
-      }
-    ]
+  "name": "Hi9",
+  "description": "Hi9 - Organise Everything",
+  "version": "1.0.5",
+  "incognito": "split",
+  "chrome_url_overrides": { "newtab": "redirect.html" },
+  "manifest_version": 2,
+  "permissions": ["tabs", "webRequest", "webRequestBlocking", "activeTab", "https://*/","http://*/", "bookmarks", "storage", "history"],
+  "browser_action": {
+    "default_icon": "favicon.ico",
+    "default_popup": "popup.html"
+  },
+  "background": {
+      "page":"hi9.html",
+      "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["*://auth-c5e05.firebaseapp.com/*","*://hi9.uk/*","*://hi9.io/*"]
+  }
 }
