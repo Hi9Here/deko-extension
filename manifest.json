@@ -21,6 +21,6 @@
     }
   ],
   "externally_connectable": {
-    "matches": ["*://auth-c5e05.firebaseapp.com/*","*://hi9.uk/*","*://hi9.io/*"]
+    "matches": ["*://auth-c5e05.firebaseapp.com/*","*://hi9.uk/*","*://hi9.io/*","*http://localhost:*/*"]
   }
 }
