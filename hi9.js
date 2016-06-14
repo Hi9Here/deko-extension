@@ -16,11 +16,9 @@ chrome.runtime.onMessageExternal.addListener(
 
     var processVisits = function(url, visitItems) {
       for (var i = 0, ie = visitItems.length; i < ie; ++i) {
-
         if (!urlToCount[url]) {
           urlToCount[url] = 0
         }
-
         urlToCount[url]++
       }
 
@@ -38,9 +36,9 @@ chrome.runtime.onMessageExternal.addListener(
     // This function is called when we have the final list of URls.
     var onAllVisitsProcessed = function() {
       // Get the top scorring urls.
-      var urlArray = [];
+      var urlArray = []
       for (var url in urlToCount) {
-        urlArray.push(url);
+        urlArray.push(url)
       }
 
       // Sort the URLs by the number of times the user typed them.
@@ -48,7 +46,7 @@ chrome.runtime.onMessageExternal.addListener(
         return urlToCount[b] - urlToCount[a];
       })
 
-      sendResponse(urlArray);
+      sendResponse(urlArray)
     }
     
     // Track the number of callbacks from chrome.history.getVisits()
@@ -67,5 +65,6 @@ chrome.runtime.onMessageExternal.addListener(
       chrome.history.getVisits({url: url}, processVisitsWithUrl(url));
       numRequestsOutstanding++
     }
+    return true
   }
 )
