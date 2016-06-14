@@ -10,7 +10,6 @@ chrome.webRequest.onBeforeRequest.addListener( function (details) {
   })
 },{urls:["*://auth-c5e05.firebaseapp.com/+.html*"]})
 
-
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
 
