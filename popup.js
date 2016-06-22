@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     img.onload = function () {
       if (!gotFav) {
         gotFav = true
-        fav.height = fav.width = 32
+        fav.height = fav.width = 16
         var octx = fav.getContext('2d')
         octx.fillStyle = "#FFF"
         octx.fillRect(0, 0, fav.width, fav.height)
