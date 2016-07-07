@@ -21,6 +21,6 @@
     }
   ],
   "externally_connectable": {
-    "matches": ["*://auth-c5e05.firebaseapp.com/*","*://deko.fyi/*","*://deko.fyi/*","http://localhost/*"]
+    "matches": ["*://auth-c5e05.firebaseapp.com/*","*://deko.fyi/*","http://localhost/*"]
   }
 }
