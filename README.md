@@ -1,4 +1,4 @@
-# hi9-extension
-Lets you add cards to hi9
+# deko-extension
+Lets you add cards to deko
 and
-Opens hi9.uk as a new tab
+Opens deko.fyi as a new tab
