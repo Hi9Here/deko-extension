@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   }
 })
 
-document.hi9 = {
+document.deko = {
   sortUrls: function(request, sendResponse) {
     var processVisits = function(url, visitItems, sendResponse) {
       for (var i = 0, ie = visitItems.length; i < ie; ++i) {
